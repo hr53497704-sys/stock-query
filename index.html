@@ -2,252 +2,213 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>台股查詢中心｜吳家榮</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>台股查詢｜吳家榮</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh}
-.topbar{background:#161b22;border-bottom:1px solid #30363d;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.logo{display:flex;align-items:center;gap:10px}
-.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
-.logo-text{font-size:15px;font-weight:700}
+
+/* 頂部 */
+.topbar{background:#161b22;border-bottom:1px solid #30363d;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:8px}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.logo-text{font-size:14px;font-weight:700}
 .logo-sub{font-size:10px;color:#8b949e}
-.live-badge{display:flex;align-items:center;gap:5px;background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.3);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700}
-.live-dot{width:6px;height:6px;background:#10b981;border-radius:50%;animation:blink 1.5s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.container{max-width:920px;margin:0 auto;padding:24px 16px 60px}
 
-/* 搜尋 */
-.search-card{background:#161b22;border:1px solid #30363d;border-radius:14px;padding:28px;margin-bottom:22px}
-.search-title{font-size:18px;font-weight:900;margin-bottom:5px}
-.search-sub{font-size:12px;color:#8b949e;margin-bottom:16px}
-.search-row{display:flex;gap:10px}
-.si{flex:1;background:#0d1117;border:2px solid #30363d;border-radius:10px;padding:13px 18px;color:#e6edf3;font-size:18px;font-family:inherit;outline:none;transition:border-color .2s;font-weight:700;letter-spacing:3px}
+/* 搜尋區 */
+.search-wrap{padding:20px 16px 0}
+.search-box{display:flex;gap:8px;margin-bottom:14px}
+.si{flex:1;background:#161b22;border:2px solid #30363d;border-radius:12px;padding:14px 16px;color:#e6edf3;font-size:20px;font-family:inherit;outline:none;font-weight:700;letter-spacing:4px;-webkit-appearance:none}
 .si:focus{border-color:#2563eb}
-.si::placeholder{color:#8b949e;font-weight:400;letter-spacing:0;font-size:14px}
-.btn-q{background:#2563eb;color:white;border:none;border-radius:10px;padding:13px 26px;font-size:15px;font-family:inherit;font-weight:700;cursor:pointer;transition:background .2s}
-.btn-q:hover{background:#3b82f6}
-.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;align-items:center}
-.chips span{font-size:11px;color:#8b949e}
-.chip{background:#1c2230;border:1px solid #30363d;border-radius:20px;padding:4px 13px;font-size:12px;cursor:pointer;color:#e6edf3;transition:all .15s}
-.chip:hover{border-color:#2563eb;color:#3b82f6;background:rgba(37,99,235,0.1)}
+.si::placeholder{color:#8b949e;font-size:14px;font-weight:400;letter-spacing:0}
+.btn-q{background:#2563eb;color:white;border:none;border-radius:12px;padding:14px 20px;font-size:15px;font-family:inherit;font-weight:700;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.btn-q:active{background:#1d4ed8}
 
-/* 股票標頭 */
-.stock-hdr{display:none;background:#161b22;border:1px solid #30363d;border-radius:14px;padding:20px 24px;margin-bottom:18px}
-.sname{font-size:26px;font-weight:900}
-.smeta{font-size:12px;color:#8b949e;margin-top:4px}
-.ibadge{background:rgba(37,99,235,0.15);color:#3b82f6;border:1px solid rgba(37,99,235,0.3);border-radius:8px;padding:4px 14px;font-size:13px;font-weight:700}
+/* 熱門股票 */
+.chips-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.chip{background:#161b22;border:1px solid #30363d;border-radius:20px;padding:7px 14px;font-size:13px;cursor:pointer;color:#e6edf3;font-weight:500;-webkit-tap-highlight-color:transparent}
+.chip:active{background:rgba(37,99,235,0.2);border-color:#2563eb;color:#3b82f6}
 
-/* 即時股價 */
-.price-box{background:#0d1117;border:1px solid #30363d;border-radius:10px;padding:16px 20px;margin-top:14px}
-.psrc{font-size:11px;color:#10b981;margin-bottom:8px;display:flex;align-items:center;gap:5px}
-.prow{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-.pnum{font-size:38px;font-weight:900}
-.pup{color:#10b981;font-size:14px;font-weight:700;margin-top:3px}
-.pdn{color:#ef4444;font-size:14px;font-weight:700;margin-top:3px}
-.pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid #30363d}
-.pg-item .pg-lbl{font-size:10px;color:#8b949e;margin-bottom:2px}
-.pg-item .pg-val{font-size:13px;font-weight:700}
+/* 即時股價卡 */
+.price-card{display:none;background:#161b22;border:1px solid #30363d;border-radius:14px;padding:18px 16px;margin-bottom:14px}
+.price-name{font-size:22px;font-weight:900;margin-bottom:4px}
+.price-meta{font-size:11px;color:#8b949e;margin-bottom:12px}
+.price-num-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.price-big{font-size:36px;font-weight:900}
+.price-chg-up{color:#10b981;font-size:14px;font-weight:700}
+.price-chg-dn{color:#ef4444;font-size:14px;font-weight:700}
+.price-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding-top:12px;border-top:1px solid #30363d}
+.pg-lbl{font-size:10px;color:#8b949e;margin-bottom:2px;text-align:center}
+.pg-val{font-size:13px;font-weight:700;text-align:center}
+.src-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#10b981;margin-bottom:8px}
+.live-dot{width:5px;height:5px;background:#10b981;border-radius:50%;animation:blink 1.5s infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* 分類標籤 */
-.tab-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-.tab{padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid #30363d;background:#161b22;color:#8b949e;transition:all .2s}
-.tab.active{background:rgba(37,99,235,0.15);border-color:#2563eb;color:#3b82f6}
+/* 詢問Claude按鈕 */
+.ask-card{display:none;background:#161b22;border:1px solid #30363d;border-radius:14px;padding:18px 16px;margin-bottom:14px}
+.ask-title{font-size:14px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.ask-desc{font-size:12px;color:#8b949e;margin-bottom:14px;line-height:1.6}
+.ask-btn{display:block;width:100%;padding:16px;border-radius:12px;text-align:center;font-size:15px;font-weight:700;text-decoration:none;margin-bottom:10px;-webkit-tap-highlight-color:transparent;border:none;cursor:pointer;font-family:inherit}
+.ask-btn-claude{background:linear-gradient(135deg,#7c3aed,#2563eb);color:white}
+.ask-btn-claude:active{opacity:.85}
+.ask-copy{background:#1c2230;border:1px solid #30363d;border-radius:10px;padding:12px 14px;font-size:13px;color:#8b949e;margin-bottom:8px;line-height:1.5}
+.ask-copy strong{color:#3b82f6}
+.copy-btn{background:#30363d;color:#e6edf3;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-family:inherit;cursor:pointer;width:100%;margin-top:6px;-webkit-tap-highlight-color:transparent}
+.copy-btn:active{background:#2563eb}
 
-/* 按鈕卡片 */
-.section-hdr{font-size:12px;font-weight:700;color:#8b949e;margin:18px 0 10px;display:flex;align-items:center;gap:6px}
-.btn-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:4px}
-.lbtn{display:flex;align-items:center;gap:12px;padding:15px 16px;background:#161b22;border:1px solid #30363d;border-radius:12px;cursor:pointer;text-decoration:none;color:#e6edf3;transition:all .2s;position:relative;overflow:hidden}
-.lbtn:hover{border-color:#2563eb;background:rgba(37,99,235,0.07);transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,0.15)}
-.lbtn .bi{font-size:22px;flex-shrink:0}
-.lbtn .bc{flex:1;min-width:0}
-.lbtn .bt{font-size:13px;font-weight:700;margin-bottom:3px}
-.lbtn .bd{font-size:11px;color:#8b949e;line-height:1.4}
-.lbtn .ba{color:#8b949e;font-size:14px;flex-shrink:0}
-.lbtn:hover .ba{color:#3b82f6}
-.tag-r{position:absolute;top:8px;right:8px;font-size:9px;background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3);border-radius:4px;padding:1px 6px}
-.tag-b{position:absolute;top:8px;right:8px;font-size:9px;background:rgba(37,99,235,0.15);color:#3b82f6;border:1px solid rgba(37,99,235,0.3);border-radius:4px;padding:1px 6px}
-.tag-g{position:absolute;top:8px;right:8px;font-size:9px;background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);border-radius:4px;padding:1px 6px}
+/* 快速連結 */
+.links-card{display:none;background:#161b22;border:1px solid #30363d;border-radius:14px;padding:16px;margin-bottom:14px}
+.links-title{font-size:13px;font-weight:700;color:#8b949e;margin-bottom:12px}
+.link-list{display:flex;flex-direction:column;gap:8px}
+.lnk{display:flex;align-items:center;gap:12px;padding:13px 14px;background:#1c2230;border-radius:10px;text-decoration:none;color:#e6edf3;-webkit-tap-highlight-color:transparent}
+.lnk:active{background:rgba(37,99,235,0.15)}
+.lnk-icon{font-size:20px;flex-shrink:0}
+.lnk-content{flex:1}
+.lnk-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.lnk-desc{font-size:11px;color:#8b949e}
+.lnk-arr{color:#8b949e;font-size:14px;flex-shrink:0}
+.tag-r{font-size:9px;background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3);border-radius:4px;padding:1px 6px;margin-top:3px;display:inline-block}
+.tag-b{font-size:9px;background:rgba(37,99,235,0.15);color:#3b82f6;border:1px solid rgba(37,99,235,0.3);border-radius:4px;padding:1px 6px;margin-top:3px;display:inline-block}
 
-/* SOP */
-.sop-card{background:#161b22;border:1px solid #30363d;border-radius:14px;padding:20px 24px;margin-bottom:18px}
-.sop-steps{display:flex;flex-direction:column;gap:9px;margin-top:12px}
-.sop-row{display:flex;align-items:flex-start;gap:12px;padding:11px 14px;background:#1c2230;border-radius:10px}
-.sop-n{width:24px;height:24px;background:#2563eb;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
-.sop-t{font-size:13px;line-height:1.5;color:#e6edf3}
+/* SOP說明 */
+.sop-card{background:#161b22;border:1px solid #30363d;border-radius:14px;padding:16px;margin-bottom:14px}
+.sop-title{font-size:14px;font-weight:700;margin-bottom:12px}
+.sop-row{display:flex;gap:10px;padding:10px 12px;background:#1c2230;border-radius:10px;margin-bottom:8px}
+.sop-n{width:22px;height:22px;background:#2563eb;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px}
+.sop-t{font-size:12px;line-height:1.6;color:#e6edf3}
 .sop-t strong{color:#3b82f6}
-.sop-t .site{color:#10b981;font-weight:700}
 
-/* 注意提示 */
-.notice{background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:9px 13px;font-size:12px;color:#f59e0b;margin-top:10px}
-.notice-blue{background:rgba(37,99,235,0.07);border:1px solid rgba(37,99,235,0.25);border-radius:8px;padding:9px 13px;font-size:12px;color:#3b82f6;margin-top:10px}
+.disclaimer{text-align:center;font-size:10px;color:#8b949e;padding:12px 16px 24px;line-height:1.6}
 
-.disclaimer{text-align:center;font-size:11px;color:#8b949e;padding:14px;border-top:1px solid #30363d;margin-top:8px}
-@media(max-width:600px){.btn-grid{grid-template-columns:1fr}.pgrid{grid-template-columns:repeat(2,1fr)}.search-row{flex-direction:column}}
+/* 已複製提示 */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#10b981;color:white;padding:10px 22px;border-radius:20px;font-size:13px;font-weight:700;display:none;z-index:999}
 </style>
 </head>
 <body>
+
 <div class="topbar">
   <div class="logo">
     <div class="logo-icon">📈</div>
-    <div><div class="logo-text">台股查詢中心</div><div class="logo-sub">吳家榮 個人投資參考工具</div></div>
+    <div>
+      <div class="logo-text">台股查詢中心</div>
+      <div class="logo-sub">吳家榮 個人投資參考</div>
+    </div>
   </div>
-  <div class="live-badge"><span class="live-dot"></span>真實資料版</div>
 </div>
 
-<div class="container">
-
-  <!-- 搜尋 -->
-  <div class="search-card">
-    <div class="search-title">🔍 輸入股票代號</div>
-    <div class="search-sub">輸入後自動顯示即時股價，並一鍵開啟所有真實資料來源</div>
-    <div class="search-row">
-      <input class="si" id="si" type="number" placeholder="輸入代號，例如：2330"/>
-      <button class="btn-q" onclick="doQuery()">查詢</button>
-    </div>
-    <div class="chips">
-      <span>熱門：</span>
-      <div class="chip" onclick="sc('2330')">台積電</div>
-      <div class="chip" onclick="sc('2454')">聯發科</div>
-      <div class="chip" onclick="sc('2317')">鴻海</div>
-      <div class="chip" onclick="sc('2308')">台達電</div>
-      <div class="chip" onclick="sc('2412')">中華電</div>
-      <div class="chip" onclick="sc('2881')">富邦金</div>
-      <div class="chip" onclick="sc('2882')">國泰金</div>
-      <div class="chip" onclick="sc('2303')">聯電</div>
-      <div class="chip" onclick="sc('2002')">中鋼</div>
-      <div class="chip" onclick="sc('0050')">元大台灣50</div>
-      <div class="chip" onclick="sc('00878')">國泰高股息</div>
-      <div class="chip" onclick="sc('00929')">復華台灣科技</div>
-    </div>
+<div class="search-wrap">
+  <!-- 搜尋框 -->
+  <div class="search-box">
+    <input class="si" id="si" type="number" placeholder="輸入股票代號，如 2330" inputmode="numeric"/>
+    <button class="btn-q" onclick="doQuery()">查詢</button>
   </div>
 
-  <!-- 股票標頭+即時股價 -->
-  <div class="stock-hdr" id="stockHdr">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
-      <div>
-        <div class="sname" id="sname">—</div>
-        <div class="smeta" id="smeta"></div>
-      </div>
-      <div class="ibadge" id="sbadge"></div>
-    </div>
-    <div class="price-box">
-      <div class="psrc"><span class="live-dot"></span>台灣證交所即時報價</div>
-      <div id="priceArea"><div style="color:#8b949e;font-size:13px">⏳ 載入中…</div></div>
-    </div>
-  </div>
-
-  <!-- 查詢區（有股票後才顯示） -->
-  <div id="queryArea" style="display:none">
-
-    <!-- 分類Tab -->
-    <div class="tab-row">
-      <div class="tab active" onclick="switchTab('finance',this)">📊 財務資料</div>
-      <div class="tab" onclick="switchTab('chips',this)">👥 籌碼面</div>
-      <div class="tab" onclick="switchTab('tech',this)">📈 技術面</div>
-      <div class="tab" onclick="switchTab('news',this)">📰 新聞公告</div>
-    </div>
-
-    <!-- 財務資料 -->
-    <div id="tab-finance">
-      <div class="section-hdr">📊 歷年財務資料（EPS / ROE / 股利）</div>
-      <div class="btn-grid" id="g-finance"></div>
-      <div class="notice">💡 點「Goodinfo 歷年EPS」→ 可看從上市第一年到現在的完整EPS走勢，含平均值</div>
-
-      <div class="section-hdr">🎯 法人目標價 & EPS預估</div>
-      <div class="btn-grid" id="g-target"></div>
-      <div class="notice">💡 點「CMoney法人預估」→ 可看分析師對未來4季EPS的預估值（真實法人報告）</div>
-    </div>
-
-    <!-- 籌碼面 -->
-    <div id="tab-chips" style="display:none">
-      <div class="section-hdr">👥 三大法人 & 大戶持股</div>
-      <div class="btn-grid" id="g-chips"></div>
-      <div class="notice-blue">💡 集保每周動態：點「集保結算所」→ 選股票代號 → 看各區間持股人數變化<br>大戶（持股400張以上）比例上升 = 籌碼集中 = 好信號 ✅</div>
-
-      <div class="section-hdr">🏦 集保 & 融資融券</div>
-      <div class="btn-grid" id="g-margin"></div>
-    </div>
-
-    <!-- 技術面 -->
-    <div id="tab-tech" style="display:none">
-      <div class="section-hdr">📈 K線圖 & 技術指標</div>
-      <div class="btn-grid" id="g-tech"></div>
-      <div class="notice">💡 技術面看什麼？<br>
-        🟢 <strong>進場信號：</strong>股價站上月線（MA20）+ KD黃金交叉 + 外資連續買超<br>
-        🔴 <strong>底部區域：</strong>本益比低於歷史平均 + 法人大量買超 + 跌幅超過30%
-      </div>
-      <div class="notice-blue" style="margin-top:8px">
-        🤖 <strong>未來升級：</strong>待串接 Claude AI 後，可自動分析技術面並給出進場建議
-      </div>
-    </div>
-
-    <!-- 新聞公告 -->
-    <div id="tab-news" style="display:none">
-      <div class="section-hdr">📰 最新新聞 & 法人報告</div>
-      <div class="btn-grid" id="g-news"></div>
-
-      <div class="section-hdr">📋 官方公告 & 財報</div>
-      <div class="btn-grid" id="g-official"></div>
-    </div>
-
-  </div>
-
-  <!-- 查詢SOP（沒輸入代號時顯示） -->
-  <div class="sop-card" id="sopCard">
-    <div style="font-size:15px;font-weight:700;margin-bottom:4px">📋 查詢SOP — 每次查股票照這個流程</div>
-    <div style="font-size:12px;color:#8b949e;margin-bottom:2px">輸入代號後，依序點擊各按鈕查詢</div>
-    <div class="sop-steps">
-      <div class="sop-row">
-        <div class="sop-n">1</div>
-        <div class="sop-t">輸入代號 → 自動顯示<strong>即時股價</strong>（台灣證交所真實報價）</div>
-      </div>
-      <div class="sop-row">
-        <div class="sop-n">2</div>
-        <div class="sop-t">點「財務資料」→ <span class="site">Goodinfo</span> 看<strong>歷年EPS走勢圖 + 平均值</strong>，判斷公司賺不賺錢</div>
-      </div>
-      <div class="sop-row">
-        <div class="sop-n">3</div>
-        <div class="sop-t">點「財務資料」→ <span class="site">CMoney</span> 看<strong>法人目標價 + 未來4季EPS預估</strong>，判斷現在貴還是便宜</div>
-      </div>
-      <div class="sop-row">
-        <div class="sop-n">4</div>
-        <div class="sop-t">點「籌碼面」→ <span class="site">集保結算所</span> 看<strong>每周大戶持股比例</strong>，判斷主力動向</div>
-      </div>
-      <div class="sop-row">
-        <div class="sop-n">5</div>
-        <div class="sop-t">點「籌碼面」→ <span class="site">股狗網</span> 看<strong>外資投信買賣超</strong>，法人最近買還是賣</div>
-      </div>
-      <div class="sop-row">
-        <div class="sop-n">6</div>
-        <div class="sop-t">點「技術面」→ <span class="site">Yahoo股市</span> 看<strong>K線圖 + 均線</strong>，判斷進場時機</div>
-      </div>
-      <div class="sop-row">
-        <div class="sop-n">7</div>
-        <div class="sop-t">點「新聞公告」→ <span class="site">Yahoo財經</span> 確認<strong>最新消息</strong>，有沒有重大利多利空</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="disclaimer">
-    ⚠️ 股價：台灣證交所｜財務：Goodinfo / 公開資訊觀測站｜籌碼：集保結算所 / 股狗網｜本工具僅供個人參考，不構成投資建議
+  <!-- 熱門股票 -->
+  <div class="chips-wrap">
+    <div class="chip" onclick="sc('2330')">台積電</div>
+    <div class="chip" onclick="sc('2454')">聯發科</div>
+    <div class="chip" onclick="sc('2317')">鴻海</div>
+    <div class="chip" onclick="sc('2308')">台達電</div>
+    <div class="chip" onclick="sc('2412')">中華電</div>
+    <div class="chip" onclick="sc('2881')">富邦金</div>
+    <div class="chip" onclick="sc('2882')">國泰金</div>
+    <div class="chip" onclick="sc('2303')">聯電</div>
+    <div class="chip" onclick="sc('2002')">中鋼</div>
+    <div class="chip" onclick="sc('0050')">元大台灣50</div>
+    <div class="chip" onclick="sc('00878')">國泰高股息</div>
+    <div class="chip" onclick="sc('00929')">復華台灣科技</div>
   </div>
 </div>
+
+<!-- 即時股價 -->
+<div class="price-card" id="priceCard" style="margin:0 16px 14px">
+  <div class="src-tag"><span class="live-dot"></span>台灣證交所即時報價</div>
+  <div class="price-name" id="pName">—</div>
+  <div class="price-meta" id="pMeta"></div>
+  <div class="price-num-row">
+    <div>
+      <div class="price-big" id="pNum">—</div>
+      <div id="pChg"></div>
+    </div>
+    <div style="text-align:right;font-size:11px;color:#8b949e" id="pTime"></div>
+  </div>
+  <div class="price-grid">
+    <div><div class="pg-lbl">開盤</div><div class="pg-val" id="pO">—</div></div>
+    <div><div class="pg-lbl">最高</div><div class="pg-val" style="color:#10b981" id="pH">—</div></div>
+    <div><div class="pg-lbl">最低</div><div class="pg-val" style="color:#ef4444" id="pL">—</div></div>
+    <div><div class="pg-lbl">昨收</div><div class="pg-val" id="pY">—</div></div>
+  </div>
+</div>
+
+<!-- 詢問Claude -->
+<div class="ask-card" id="askCard" style="margin:0 16px 14px">
+  <div class="ask-title">🤖 問Claude AI分析</div>
+  <div class="ask-desc">
+    複製下方訊息，貼到 Claude.ai 對話框，即可獲得：<br>
+    ✅ 產業生活化比喻<br>
+    ✅ 最新月營收分析<br>
+    ✅ 法人最新目標價
+  </div>
+
+  <div class="ask-copy" id="askCopyText">
+    請幫我查 <strong id="askCodeSpan"></strong> 這檔股票：<br>
+    1. 用生活化比喻解釋這公司做什麼<br>
+    2. 最新月營收狀況（年增率）<br>
+    3. 法人最新目標價是多少
+  </div>
+  <button class="copy-btn" onclick="copyMsg()">📋 複製訊息</button>
+
+  <div style="margin-top:12px;text-align:center;font-size:11px;color:#8b949e">複製後開啟 Claude.ai 貼上即可</div>
+  <a class="ask-btn ask-btn-claude" id="claudeLink" href="https://claude.ai" target="_blank" style="margin-top:10px;display:block;padding:14px;border-radius:12px;text-align:center;font-size:14px;font-weight:700;text-decoration:none;color:white">
+    🚀 開啟 Claude.ai 詢問
+  </a>
+</div>
+
+<!-- 真實資料快速連結 -->
+<div class="links-card" id="linksCard" style="margin:0 16px 14px">
+  <div class="links-title">📊 真實資料一鍵查詢</div>
+  <div class="link-list" id="linkList"></div>
+</div>
+
+<!-- SOP說明（沒有輸入時顯示） -->
+<div class="sop-card" id="sopCard" style="margin:0 16px 14px">
+  <div class="sop-title">📋 怎麼用？— 查股票SOP</div>
+  <div class="sop-row">
+    <div class="sop-n">1</div>
+    <div class="sop-t">輸入股票代號 → 自動顯示<strong>即時股價</strong></div>
+  </div>
+  <div class="sop-row">
+    <div class="sop-n">2</div>
+    <div class="sop-t">複製訊息貼給 <strong>Claude AI</strong> → 得到產業分析、月營收、法人目標價</div>
+  </div>
+  <div class="sop-row">
+    <div class="sop-n">3</div>
+    <div class="sop-t">點下方連結到 <strong>Goodinfo</strong> 看歷年EPS走勢圖（含平均值）</div>
+  </div>
+  <div class="sop-row">
+    <div class="sop-n">4</div>
+    <div class="sop-t">點 <strong>集保結算所</strong> 看每周大戶持股比例變化</div>
+  </div>
+  <div class="sop-row">
+    <div class="sop-n">5</div>
+    <div class="sop-t">點 <strong>股狗網</strong> 看外資、投信最新買賣動向</div>
+  </div>
+</div>
+
+<div class="disclaimer">
+  股價來源：台灣證交所｜AI分析：Claude.ai<br>
+  財務資料：Goodinfo、公開資訊觀測站｜僅供個人參考，不構成投資建議
+</div>
+
+<div class="toast" id="toast">✅ 已複製！去貼給 Claude 吧</div>
 
 <script>
 let curCode = '';
+let curName = '';
 
 function sc(c){ document.getElementById('si').value=c; doQuery(); }
 document.getElementById('si').addEventListener('keydown',e=>{ if(e.key==='Enter') doQuery(); });
-
-function switchTab(name, el){
-  ['finance','chips','tech','news'].forEach(t=>{
-    document.getElementById('tab-'+t).style.display = t===name?'block':'none';
-  });
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-}
 
 async function doQuery(){
   const raw = document.getElementById('si').value.trim();
@@ -255,122 +216,120 @@ async function doQuery(){
   if(!code||code.length<4){ alert('請輸入4~6位數字股票代號'); return; }
   curCode = code;
 
-  document.getElementById('stockHdr').style.display='block';
-  document.getElementById('queryArea').style.display='block';
   document.getElementById('sopCard').style.display='none';
-  document.getElementById('sbadge').textContent=code;
-  document.getElementById('sname').textContent='查詢中…';
-  document.getElementById('smeta').textContent='';
-  document.getElementById('priceArea').innerHTML='<div style="color:#8b949e;font-size:13px">⏳ 載入即時股價…</div>';
+  document.getElementById('priceCard').style.display='block';
+  document.getElementById('askCard').style.display='block';
+  document.getElementById('linksCard').style.display='block';
+
+  document.getElementById('pName').textContent='查詢中…';
+  document.getElementById('pNum').textContent='—';
+  document.getElementById('pChg').innerHTML='';
+  document.getElementById('askCodeSpan').textContent=code;
 
   buildLinks(code);
   await fetchPrice(code);
+  updateAskText(code, curName);
+}
+
+function updateAskText(code, name){
+  const display = name ? name+'（'+code+'）' : code;
+  document.getElementById('askCopyText').innerHTML =
+    '請幫我查 <strong>'+display+'</strong> 這檔股票：<br>'+
+    '1. 用生活化比喻解釋這公司做什麼<br>'+
+    '2. 最新月營收狀況（年增率）<br>'+
+    '3. 法人最新目標價是多少';
+}
+
+function copyMsg(){
+  const code = curCode;
+  const name = curName ? curName+'（'+code+'）' : code;
+  const msg = '請幫我查 '+name+' 這檔股票：\n1. 用生活化比喻解釋這公司做什麼\n2. 最新月營收狀況（年增率）\n3. 法人最新目標價是多少';
+  
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(msg).then(()=>showToast());
+  } else {
+    const ta=document.createElement('textarea');
+    ta.value=msg; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast();
+  }
+}
+
+function showToast(){
+  const t=document.getElementById('toast');
+  t.style.display='block';
+  setTimeout(()=>t.style.display='none',2500);
 }
 
 async function fetchPrice(code){
-  const tryFetch = async (market)=>{
-    const url='https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch='+market+'_'+code+'.tw&json=1&delay=0';
+  const tryMarket = async (mkt)=>{
+    const url='https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch='+mkt+'_'+code+'.tw&json=1&delay=0';
     const r=await fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(url));
     return await r.json();
   };
+
   try{
-    let data = await tryFetch('tse');
-    let d = data?.msgArray?.[0];
-    let market = '上市';
-    if(!d||d.z==='-'||!d.z){
-      data = await tryFetch('otc');
-      d = data?.msgArray?.[0];
-      market = '上櫃';
+    let data=await tryMarket('tse');
+    let d=data?.msgArray?.[0];
+    let mkt='上市';
+    if(!d||!d.z||d.z==='-'){
+      data=await tryMarket('otc');
+      d=data?.msgArray?.[0];
+      mkt='上櫃';
     }
+
     if(d&&d.z&&d.z!=='-'){
       const p=parseFloat(d.z), prev=parseFloat(d.y);
       const chg=p-prev, pct=(chg/prev*100).toFixed(2);
-      const sign=chg>=0?'+':'', cls=chg>=0?'pup':'pdn';
-      document.getElementById('sname').textContent=d.n||('股票 '+code);
-      document.getElementById('smeta').textContent='市場：'+market+' ｜ 成交量：'+parseInt(d.v||0).toLocaleString()+' 張 ｜ '+new Date().toLocaleTimeString('zh-TW');
-      document.getElementById('priceArea').innerHTML=`
-        <div class="prow">
-          <div>
-            <div class="pnum">NT$ ${p.toFixed(2)}</div>
-            <div class="${cls}">${sign}${chg.toFixed(2)} 元（${sign}${pct}%）</div>
-          </div>
-          <div style="text-align:right;font-size:11px;color:#8b949e">更新時間<br>${d.t||'盤中'}</div>
-        </div>
-        <div class="pgrid">
-          <div class="pg-item"><div class="pg-lbl">開盤</div><div class="pg-val">${d.o||'—'}</div></div>
-          <div class="pg-item"><div class="pg-lbl">最高</div><div class="pg-val" style="color:#10b981">${d.h||'—'}</div></div>
-          <div class="pg-item"><div class="pg-lbl">最低</div><div class="pg-val" style="color:#ef4444">${d.l||'—'}</div></div>
-          <div class="pg-item"><div class="pg-lbl">昨收</div><div class="pg-val">${d.y||'—'}</div></div>
-        </div>`;
+      const sign=chg>=0?'+':'';
+      const cls=chg>=0?'price-chg-up':'price-chg-dn';
+      curName=d.n||'';
+      document.getElementById('pName').textContent=d.n||('股票 '+code);
+      document.getElementById('pMeta').textContent=mkt+'｜成交量 '+parseInt(d.v||0).toLocaleString()+' 張';
+      document.getElementById('pNum').textContent='NT$ '+p.toFixed(2);
+      document.getElementById('pChg').innerHTML='<div class="'+cls+'">'+sign+chg.toFixed(2)+' 元（'+sign+pct+'%）</div>';
+      document.getElementById('pTime').textContent=d.t||'';
+      document.getElementById('pO').textContent=d.o||'—';
+      document.getElementById('pH').textContent=d.h||'—';
+      document.getElementById('pL').textContent=d.l||'—';
+      document.getElementById('pY').textContent=d.y||'—';
+      updateAskText(code, curName);
     } else {
-      document.getElementById('sname').textContent='股票 '+code;
-      document.getElementById('priceArea').innerHTML=`<div style="color:#8b949e;font-size:13px;padding:6px 0">
-        ⚠️ 非交易時間或查無報價 →
-        <a href="https://tw.stock.yahoo.com/quote/${code}" target="_blank" style="color:#3b82f6">Yahoo股市查看</a>
-      </div>`;
+      document.getElementById('pName').textContent='股票 '+code;
+      document.getElementById('pNum').textContent='—';
+      document.getElementById('pMeta').textContent='非交易時間或查無報價';
+      document.getElementById('pChg').innerHTML='<div style="color:#8b949e;font-size:12px">請至Yahoo股市查看即時股價</div>';
     }
   }catch(e){
-    document.getElementById('priceArea').innerHTML=`<div style="color:#8b949e;font-size:13px;padding:6px 0">
-      ⚠️ 股價載入失敗 →
-      <a href="https://tw.stock.yahoo.com/quote/${code}" target="_blank" style="color:#3b82f6">Yahoo股市查看</a>
-    </div>`;
+    document.getElementById('pName').textContent='股票 '+code;
+    document.getElementById('pNum').textContent='載入失敗';
+    document.getElementById('pMeta').textContent='請稍後再試或點下方Yahoo連結';
   }
 }
 
 function buildLinks(code){
-  const L = (icon,title,desc,url,tag,tagText)=>
-    `<a class="lbtn" href="${url}" target="_blank" rel="noopener">
-      <div class="bi">${icon}</div>
-      <div class="bc"><div class="bt">${title}</div><div class="bd">${desc}</div></div>
-      <div class="ba">↗</div>
-      <div class="tag-${tag}">${tagText}</div>
-    </a>`;
+  const links=[
+    {icon:'📊',title:'Goodinfo — 歷年EPS走勢圖',desc:'從上市到最新，含平均值',url:'https://goodinfo.tw/tw/StockFinDetail.asp?STOCK_ID='+code,tag:'r',tagText:'真實財報'},
+    {icon:'💰',title:'Goodinfo — 股利 & 殖利率',desc:'歷年配息、除息日、殖利率',url:'https://goodinfo.tw/tw/StockDividendPolicy.asp?STOCK_ID='+code,tag:'r',tagText:'真實財報'},
+    {icon:'🏦',title:'集保結算所 — 每周大戶持股',desc:'每周大戶持股比例變化，籌碼動向',url:'https://www.tdcc.com.tw/portal/zh/smWeb/qryStock',tag:'r',tagText:'每周更新'},
+    {icon:'👥',title:'股狗網 — 三大法人買賣',desc:'外資、投信、自營商每日動向',url:'https://www.stockdog.com.tw/stock/'+code+'/chips',tag:'r',tagText:'真實籌碼'},
+    {icon:'🎯',title:'CMoney — 法人目標價',desc:'分析師目標價、買賣建議',url:'https://www.cmoney.tw/finance/f00053.aspx?s='+code,tag:'r',tagText:'法人資料'},
+    {icon:'📈',title:'Yahoo股市 — K線技術圖',desc:'即時K線、均線、技術指標',url:'https://tw.stock.yahoo.com/quote/'+code+'/chart',tag:'r',tagText:'即時報價'},
+    {icon:'📰',title:'Yahoo財經 — 最新新聞',desc:'即時相關新聞、重大訊息',url:'https://tw.stock.yahoo.com/quote/'+code+'/news',tag:'b',tagText:'即時新聞'},
+    {icon:'📋',title:'公開資訊觀測站 — 官方公告',desc:'公司重大訊息申報、財報下載',url:'https://mops.twse.com.tw/mops/web/t05st01?TYPEK=&co_id='+code,tag:'r',tagText:'官方公告'},
+  ];
 
-  // 財務
-  document.getElementById('g-finance').innerHTML=
-    L('📊','Goodinfo — 歷年EPS走勢','從上市第一年到最新，含平均值折線圖','https://goodinfo.tw/tw/StockFinDetail.asp?STOCK_ID='+code,'r','真實財報')+
-    L('💰','Goodinfo — 歷年股利 & 殖利率','配息紀錄、除息日、殖利率完整資料','https://goodinfo.tw/tw/StockDividendPolicy.asp?STOCK_ID='+code,'r','真實財報')+
-    L('📈','Goodinfo — ROE & 獲利能力','股東權益報酬率、毛利率、淨利率','https://goodinfo.tw/tw/StockFinDetail.asp?STOCK_ID='+code+'&RPT_CAT=Y_M_EPS','r','真實財報')+
-    L('🏦','公開資訊觀測站 — 官方財報','台灣證交所官方財務報表，最權威來源','https://mops.twse.com.tw/mops/web/t163sb04?TYPEK=sii&co_id='+code,'r','官方資料');
-
-  document.getElementById('g-target').innerHTML=
-    L('🎯','CMoney — 法人目標價','分析師預估目標價、買賣建議','https://www.cmoney.tw/finance/f00053.aspx?s='+code,'r','法人資料')+
-    L('📅','CMoney — 未來EPS預估','法人對未來4季EPS的正式預估值','https://www.cmoney.tw/finance/f00053.aspx?s='+code,'r','法人資料')+
-    L('💹','股狗網 — 財務評分','獲利、成長、安全、股利綜合評分','https://www.stockdog.com.tw/stock/'+code+'/financial','r','真實數據')+
-    L('🔢','MoneyDJ — 本益比分析','本益比、股價淨值比歷史走勢','https://www.moneydj.com/KLINE/KLINE.djhtm?a='+code,'r','真實數據');
-
-  // 籌碼
-  document.getElementById('g-chips').innerHTML=
-    L('🏦','集保結算所 — 每周大戶持股','每周更新！各區間持股人數，大戶比例變化','https://www.tdcc.com.tw/portal/zh/smWeb/qryStock','r','每周更新')+
-    L('👥','股狗網 — 三大法人動向','外資、投信、自營商每日買賣超','https://www.stockdog.com.tw/stock/'+code+'/chips','r','真實籌碼')+
-    L('📊','CMoney — 法人買賣超','近期法人累計買賣超張數與金額','https://www.cmoney.tw/forum/stock/'+code,'r','真實籌碼')+
-    L('🔍','Goodinfo — 主力進出','主力買賣超、散戶動向分析','https://goodinfo.tw/tw/StockBuySaleChart.asp?STOCK_ID='+code,'r','真實籌碼');
-
-  document.getElementById('g-margin').innerHTML=
-    L('💳','台灣證交所 — 融資融券','融資餘額、融券餘額、資券比','https://www.twse.com.tw/zh/trading/exchange/BWIBBU_d.html','r','官方資料')+
-    L('📉','Goodinfo — 融資融券趨勢','歷史融資融券餘額走勢圖','https://goodinfo.tw/tw/StockMarginChart.asp?STOCK_ID='+code,'r','真實數據')+
-    L('🏢','MoneyDJ — 董監持股','董事、監察人持股比例','https://www.moneydj.com/KLINE/KLINE.djhtm?a='+code,'b','真實數據')+
-    L('📋','公開資訊觀測站 — 持股異動','大股東持股申報資料','https://mops.twse.com.tw/mops/web/t11sb10?TYPEK=sii&co_id='+code,'r','官方資料');
-
-  // 技術面
-  document.getElementById('g-tech').innerHTML=
-    L('📈','Yahoo股市 — K線圖','即時K線、均線、成交量圖表','https://tw.stock.yahoo.com/quote/'+code+'/chart','r','即時報價')+
-    L('🔢','Goodinfo — 技術指標','KD、MACD、RSI、布林通道歷史','https://goodinfo.tw/tw/StockTechnicalAnalysis.asp?STOCK_ID='+code,'r','真實數據')+
-    L('📊','MoneyDJ — 技術分析','專業型態分析、支撐壓力','https://www.moneydj.com/KLINE/KLINE.djhtm?a='+code,'b','真實數據')+
-    L('💹','股狗網 — 技術評分','技術面綜合評分、買賣訊號','https://www.stockdog.com.tw/stock/'+code+'/technical','r','真實數據');
-
-  // 新聞
-  document.getElementById('g-news').innerHTML=
-    L('📰','Yahoo財經 — 最新新聞','即時相關新聞、媒體報導','https://tw.stock.yahoo.com/quote/'+code+'/news','b','即時新聞')+
-    L('🌐','Anue鉅亨 — 產業新聞','產業動態、法人報告摘要','https://news.cnyes.com/news/cat/twstock?keyword='+code,'b','即時新聞')+
-    L('📡','股狗網 — 個股新聞','個股專屬新聞彙整','https://www.stockdog.com.tw/stock/'+code+'/news','b','即時新聞')+
-    L('💬','PTT Stock板 — 討論','散戶討論、市場情緒參考','https://www.ptt.cc/bbs/Stock/search?q='+code,'g','僅供參考');
-
-  document.getElementById('g-official').innerHTML=
-    L('📋','公開資訊觀測站 — 重大訊息','公司官方公告、重大訊息申報','https://mops.twse.com.tw/mops/web/t05st01?TYPEK=&co_id='+code,'r','官方公告')+
-    L('📄','公開資訊觀測站 — 財務報告','季報、年報官方下載','https://mops.twse.com.tw/mops/web/t163sb04?TYPEK=sii&co_id='+code,'r','官方資料')+
-    L('🏢','公司投資人關係','公司官網IR頁面（如有）','https://www.google.com/search?q='+code+'+投資人關係+IR','g','Google搜尋')+
-    L('📊','台灣證交所 — 歷史股價','官方歷史成交資料下載','https://www.twse.com.tw/zh/trading/historical/stock-day.html','r','官方資料');
+  document.getElementById('linkList').innerHTML = links.map(l=>`
+    <a class="lnk" href="${l.url}" target="_blank" rel="noopener">
+      <div class="lnk-icon">${l.icon}</div>
+      <div class="lnk-content">
+        <div class="lnk-title">${l.title}</div>
+        <div class="lnk-desc">${l.desc}</div>
+        <div class="tag-${l.tag}">${l.tagText}</div>
+      </div>
+      <div class="lnk-arr">↗</div>
+    </a>`).join('');
 }
 </script>
 </body>
