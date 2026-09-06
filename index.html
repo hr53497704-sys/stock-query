@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>股票AI分析系統</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+
+:root {
+  --bg:        #0d1117;
+  --surface:   #161b22;
+  --surface2:  #1c2230;
+  --border:    #30363d;
+  --accent:    #2563eb;
+  --accent2:   #3b82f6;
+  --gold:      #f59e0b;
+  --green:     #10b981;
+  --red:       #ef4444;
+  --text:      #e6edf3;
+  --muted:     #8b949e;
+  --radius:    12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── 頂部 Header ── */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--accent), #7c3aed);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.logo-text { font-size: 16px; font-weight: 700; }
+.logo-sub  { font-size: 11px; color: var(--muted); }
+.badge-beta {
+  background: rgba(37,99,235,0.2);
+  color: var(--accent2);
+  border: 1px solid rgba(37,99,235,0.4);
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ── 主內容區 ── */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 36px 20px 60px;
+}
+
+/* ── 搜尋區塊 ── */
+.search-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  margin-bottom: 28px;
+}
+.search-label {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+.search-row {
+  display: flex;
+  gap: 10px;
+}
+.search-input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: var(--text);
+  font-size: 15px;
+  font-family: inherit;
+  transition: border-color .2s;
+  outline: none;
+}
+.search-input:focus { border-color: var(--accent2); }
+.search-input::placeholder { color: var(--muted); }
+.btn-search {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 28px;
+  font-size: 15px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s;
+  white-space: nowrap;
+}
+.btn-search:hover:not(:disabled) { background: var(--accent2); }
+.btn-search:disabled { opacity: .5; cursor: not-allowed; }
+
+/* 快速選擇 */
+.quick-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.quick-picks span {
+  font-size: 12px;
+  color: var(--muted);
+  margin-right: 2px;
+  line-height: 28px;
+}
+.chip {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text);
+  transition: border-color .15s, color .15s;
+}
+.chip:hover { border-color: var(--accent2); color: var(--accent2); }
+
+/* 版本選擇 */
+.mode-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+}
+.mode-btn {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--muted);
+  cursor: pointer;
+  text-align: center;
+  transition: all .2s;
+}
+.mode-btn.active {
+  background: rgba(37,99,235,0.15);
+  border-color: var(--accent);
+  color: var(--accent2);
+  font-weight: 700;
+}
+
+/* ── Loading ── */
+.loading {
+  display: none;
+  text-align: center;
+  padding: 60px 0;
+}
+.spinner {
+  width: 48px; height: 48px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent2);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading p { color: var(--muted); font-size: 14px; }
+
+/* ── 錯誤 ── */
+.error-box {
+  display: none;
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.4);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  color: #fca5a5;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+/* ── 結果區 ── */
+.result-area { display: none; }
+
+/* 股票大標題列 */
+.stock-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  margin-bottom: 20px;
+}
+.stock-name-block h2 {
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+.stock-name-block .code {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.stock-industry {
+  background: rgba(37,99,235,0.15);
+  color: var(--accent2);
+  border: 1px solid rgba(37,99,235,0.3);
+  border-radius: 20px;
+  padding: 5px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  height: fit-content;
+}
+
+/* 資訊卡片 grid */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.info-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+}
+.info-card .card-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: none;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.info-card .card-value {
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+.info-card .card-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.val-green { color: var(--green); }
+.val-gold  { color: var(--gold); }
+.val-red   { color: var(--red); }
+.val-blue  { color: var(--accent2); }
+
+/* ── 章節卡 ── */
+.section-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 26px;
+  margin-bottom: 20px;
+}
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title .icon { font-size: 16px; }
+
+/* 比喻說明 */
+.analogy-box {
+  background: var(--surface2);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 14px 18px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+/* ROE 儀表 */
+.roe-gauge {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.roe-number {
+  font-size: 52px;
+  font-weight: 900;
+  line-height: 1;
+}
+.roe-legend { font-size: 13px; color: var(--muted); line-height: 1.8; }
+.roe-bar-wrap { flex: 1; min-width: 200px; }
+.roe-bar-bg {
+  height: 10px;
+  background: var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.roe-bar-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 1s ease;
+}
+.roe-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+
+/* EPS 表格 */
+.eps-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.eps-table th {
+  background: var(--surface2);
+  color: var(--muted);
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 500;
+  font-size: 12px;
+}
+.eps-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+.eps-table tr:last-child td { border-bottom: none; }
+.eps-positive { color: var(--green); font-weight: 700; }
+.eps-negative { color: var(--red); font-weight: 700; }
+
+/* 圖表 */
+.chart-wrap { position: relative; height: 260px; margin-top: 10px; }
+
+/* 籌碼條 */
+.chip-bar-wrap { display: flex; flex-direction: column; gap: 12px; }
+.chip-row { display: flex; align-items: center; gap: 12px; }
+.chip-row-label { width: 60px; font-size: 12px; color: var(--muted); flex-shrink: 0; }
+.chip-bar-bg { flex: 1; height: 8px; background: var(--border); border-radius: 10px; overflow: hidden; }
+.chip-bar-fill { height: 100%; border-radius: 10px; }
+.chip-row-val { width: 80px; font-size: 13px; font-weight: 700; text-align: right; flex-shrink: 0; }
+
+/* 風險清單 */
+.risk-list { display: flex; flex-direction: column; gap: 10px; }
+.risk-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--surface2);
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.risk-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+/* 新聞清單 */
+.news-list { display: flex; flex-direction: column; gap: 8px; }
+.news-item {
+  padding: 12px 14px;
+  background: var(--surface2);
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.6;
+  border-left: 3px solid var(--border);
+}
+.news-date { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+
+/* 免責聲明 */
+.disclaimer {
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 8px;
+  padding: 16px;
+  border-top: 1px solid var(--border);
+}
+
+@media(max-width:640px) {
+  .cards-grid { grid-template-columns: 1fr 1fr; }
+  .search-row { flex-direction: column; }
+  .topbar { padding: 12px 16px; }
+  .container { padding: 20px 14px 40px; }
+}
+</style>
+</head>
+<body>
+
+<!-- 頂部 -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">📈</div>
+    <div>
+      <div class="logo-text">股票AI分析</div>
+      <div class="logo-sub">吳家榮 個人投資參考工具</div>
+    </div>
+  </div>
+  <div class="badge-beta">AI 驅動</div>
+</div>
+
+<div class="container">
+
+  <!-- 搜尋區 -->
+  <div class="search-card">
+    <div class="search-label">輸入股票代號或名稱</div>
+    <div class="search-row">
+      <input class="search-input" id="stockInput" type="text"
+        placeholder="例如：2330、台積電、聯發科、0050…"
+        maxlength="20" />
+      <button class="btn-search" id="searchBtn" onclick="doSearch()">🔍 查詢</button>
+    </div>
+
+    <div class="quick-picks">
+      <span>熱門：</span>
+      <div class="chip" onclick="quickPick('2330 台積電')">台積電 2330</div>
+      <div class="chip" onclick="quickPick('2454 聯發科')">聯發科 2454</div>
+      <div class="chip" onclick="quickPick('2317 鴻海')">鴻海 2317</div>
+      <div class="chip" onclick="quickPick('2308 台達電')">台達電 2308</div>
+      <div class="chip" onclick="quickPick('2412 中華電')">中華電 2412</div>
+      <div class="chip" onclick="quickPick('0050 元大台灣50')">0050 元大台灣50</div>
+    </div>
+
+    <div class="mode-row">
+      <button class="mode-btn active" id="modeLite" onclick="setMode('lite')">⚡ 精簡版（快速了解）</button>
+      <button class="mode-btn" id="modeFull" onclick="setMode('full')">🔍 完整版（深入研究）</button>
+    </div>
+  </div>
+
+  <!-- 錯誤 -->
+  <div class="error-box" id="errorBox"></div>
+
+  <!-- Loading -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p id="loadingMsg">AI 正在查詢資料中，請稍候…</p>
+  </div>
+
+  <!-- 結果 -->
+  <div class="result-area" id="resultArea"></div>
+
+  <div class="disclaimer">
+    ⚠️ 本工具資料由 AI 查詢整理，僅供個人參考學習使用，不構成任何投資建議。投資有風險，請審慎評估。
+  </div>
+
+</div>
+
+<script>
+let currentMode = 'lite';
+let epsChartInstance = null;
+
+function setMode(m) {
+  currentMode = m;
+  document.getElementById('modeLite').className = 'mode-btn' + (m==='lite'?' active':'');
+  document.getElementById('modeFull').className = 'mode-btn' + (m==='full'?' active':'');
+}
+
+function quickPick(val) {
+  document.getElementById('stockInput').value = val;
+  doSearch();
+}
+
+document.getElementById('stockInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doSearch();
+});
+
+const loadingMsgs = [
+  'AI 正在查詢資料中，請稍候…',
+  '分析產業與財務數據中…',
+  '整理法人目標價與EPS預測…',
+  '生成分析報告中…'
+];
+
+async function doSearch() {
+  const input = document.getElementById('stockInput').value.trim();
+  if (!input) return;
+
+  document.getElementById('errorBox').style.display = 'none';
+  document.getElementById('resultArea').style.display = 'none';
+  document.getElementById('loading').style.display = 'block';
+
+  let msgIdx = 0;
+  const msgEl = document.getElementById('loadingMsg');
+  const msgTimer = setInterval(() => {
+    msgIdx = (msgIdx+1) % loadingMsgs.length;
+    msgEl.textContent = loadingMsgs[msgIdx];
+  }, 2000);
+
+  const prompt = buildPrompt(input, currentMode);
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: `你是台灣股市分析專家。使用者詢問一檔台灣股票，請依照指示格式，用繁體中文回覆。
+所有數字盡量給出具體估計值（可以說「約XXX」），不要說「無法確定」或「需要查詢」。
+如果是ETF，ROE欄位填「N/A（ETF）」。
+請嚴格按照JSON格式回覆，不要有任何其他文字、不要有markdown符號。`,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    clearInterval(msgTimer);
+
+    if (!res.ok) throw new Error(`API錯誤 ${res.status}`);
+    const data = await res.json();
+    const text = data.content.map(b => b.text || '').join('');
+
+    let json;
+    try {
+      const clean = text.replace(/```json|```/g,'').trim();
+      json = JSON.parse(clean);
+    } catch {
+      throw new Error('AI回覆格式異常，請再試一次');
+    }
+
+    renderResult(json, input);
+
+  } catch (err) {
+    clearInterval(msgTimer);
+    document.getElementById('loading').style.display = 'none';
+    const eb = document.getElementById('errorBox');
+    eb.style.display = 'block';
+    eb.textContent = '❌ ' + err.message;
+  }
+}
+
+function buildPrompt(stock, mode) {
+  const full = mode === 'full';
+  return `請分析台灣股票「${stock}」，回覆以下JSON格式：
+
+{
+  "code": "股票代號",
+  "name": "公司名稱",
+  "industry": "產業分類（2~4字）",
+  "analogy": "用一段生活化的比喻說明這公司做什麼（2~3句話，讓小學生也懂）",
+  "roe_latest": "最新一年ROE數字（僅數字，如20.5）",
+  "roe_3y": ["2022年ROE","2023年ROE","2024年ROE"],
+  "roe_comment": "一句話評語（如：連續三年超過20%，是超優質公司）",
+  "eps_history": [
+    {"year":"2018","eps":數字},
+    {"year":"2019","eps":數字},
+    {"year":"2020","eps":數字},
+    {"year":"2021","eps":數字},
+    {"year":"2022","eps":數字},
+    {"year":"2023","eps":數字},
+    {"year":"2024","eps":數字}
+  ],
+  "eps_forecast": [
+    {"quarter":"2025 Q1","eps":數字},
+    {"quarter":"2025 Q2","eps":數字},
+    {"quarter":"2025 Q3","eps":數字},
+    {"quarter":"2025 Q4","eps":數字}
+  ],
+  "target_price": "法人平均目標價（如：約1100~1200元）",
+  "current_price": "目前約略股價（如：約980元）",
+  "price_comment": "一句話：現在相對目標價是偏低還是偏高",
+  "dividend_per_share": "近年每股股利（如：17元）",
+  "dividend_yield": "殖利率（如：1.7%）",
+  "dividend_date": "約略除息月份（如：約7月）",
+  "risks": ["風險1","風險2","風險3"],
+  "news": [
+    {"date":"大約日期","title":"近期重要新聞標題"},
+    {"date":"大約日期","title":"近期重要新聞標題"}
+  ]${full ? `,
+  "pe_ratio": "本益比（如：約25倍）",
+  "revenue_trend": "一句話說明近期營收趨勢",
+  "competitors": ["競爭對手1","競爭對手2"],
+  "institution_buy": "外資近期動向（如：近一個月買超約5萬張）",
+  "institution_sell": "投信近期動向",
+  "technical": "技術面一句話簡評（如：站上月線，KD黃金交叉，短線偏多）"` : ''}
+}`;
+}
+
+function renderResult(d, query) {
+  document.getElementById('loading').style.display = 'none';
+
+  const roeNum = parseFloat(d.roe_latest) || 0;
+  const roeColor = roeNum >= 15 ? 'var(--green)' : roeNum >= 8 ? 'var(--gold)' : 'var(--red)';
+  const roeBarColor = roeNum >= 15 ? '#10b981' : roeNum >= 8 ? '#f59e0b' : '#ef4444';
+  const roePct = Math.min(roeNum / 40 * 100, 100);
+  const roeLabel = roeNum >= 15 ? '✅ 優質' : roeNum >= 8 ? '⚠️ 普通' : '❌ 偏弱';
+
+  const epsHist = d.eps_history || [];
+  const epsAvg = epsHist.length ? (epsHist.reduce((s,r)=>s+r.eps,0)/epsHist.length).toFixed(2) : 0;
+
+  const isFull = !!d.pe_ratio;
+
+  let html = `
+  <!-- 股票標頭 -->
+  <div class="stock-header">
+    <div class="stock-name-block">
+      <h2>${d.name || query}</h2>
+      <div class="code">${d.code || ''} ｜ 查詢時間：${new Date().toLocaleDateString('zh-TW')}</div>
+    </div>
+    <div class="stock-industry">${d.industry || ''}</div>
+  </div>
+
+  <!-- 快速指標卡 -->
+  <div class="cards-grid">
+    <div class="info-card">
+      <div class="card-label">📍 目前約略股價</div>
+      <div class="card-value val-blue">${d.current_price || '—'}</div>
+      <div class="card-sub">${d.price_comment || ''}</div>
+    </div>
+    <div class="info-card">
+      <div class="card-label">🎯 法人目標價</div>
+      <div class="card-value val-gold">${d.target_price || '—'}</div>
+      <div class="card-sub">分析師預估合理價位</div>
+    </div>
+    <div class="info-card">
+      <div class="card-label">💵 年度股利 / 殖利率</div>
+      <div class="card-value val-green">${d.dividend_per_share || '—'}</div>
+      <div class="card-sub">殖利率 ${d.dividend_yield || '—'}｜除息約 ${d.dividend_date || '—'}</div>
+    </div>
+  </div>
+
+  <!-- 公司做什麼 -->
+  <div class="section-card">
+    <div class="section-title"><span class="icon">🏭</span> 這公司在做什麼？</div>
+    <div class="analogy-box">${d.analogy || '—'}</div>
+  </div>
+
+  <!-- ROE -->
+  <div class="section-card">
+    <div class="section-title"><span class="icon">💰</span> 會不會賺錢？（ROE 股東權益報酬率）</div>
+    <div class="roe-gauge">
+      <div>
+        <div class="roe-number" style="color:${roeColor}">${d.roe_latest || '—'}%</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px;">${roeLabel}</div>
+      </div>
+      <div class="roe-bar-wrap">
+        <div class="roe-bar-bg">
+          <div class="roe-bar-fill" id="roeBar" style="width:0%;background:${roeBarColor}"></div>
+        </div>
+        <div class="roe-labels"><span>0%</span><span>8% 普通</span><span>15% 優質</span><span>40%+</span></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:8px;">${d.roe_comment || ''}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;">近3年：${(d.roe_3y||[]).join(' / ')}</div>
+      </div>
+      <div class="roe-legend">
+        🟢 &gt;15% 超優質<br>
+        🟡 8~15% 普通<br>
+        🔴 &lt;8% 偏弱
+      </div>
+    </div>
+  </div>
+
+  <!-- EPS 走勢圖 -->
+  <div class="section-card">
+    <div class="section-title"><span class="icon">📊</span> 歷年 EPS 走勢（均值 ${epsAvg} 元）</div>
+    <div class="chart-wrap"><canvas id="epsChart"></canvas></div>
+  </div>
+
+  <!-- 未來4季預估EPS -->
+  <div class="section-card">
+    <div class="section-title"><span class="icon">📅</span> 未來 4 季預估 EPS</div>
+    <table class="eps-table">
+      <tr><th>季度</th><th>預估EPS（元）</th><th>比上年同期</th></tr>
+      ${(d.eps_forecast||[]).map((r,i)=>{
+        const cls = r.eps >= 0 ? 'eps-positive' : 'eps-negative';
+        return `<tr>
+          <td>${r.quarter}</td>
+          <td class="${cls}">${r.eps > 0 ? '+' : ''}${r.eps}</td>
+          <td style="color:var(--muted);font-size:12px;">分析師預估</td>
+        </tr>`;
+      }).join('')}
+    </table>
+  </div>
+
+  <!-- 風險 -->
+  <div class="section-card">
+    <div class="section-title"><span class="icon">⚠️</span> 主要風險</div>
+    <div class="risk-list">
+      ${(d.risks||[]).map((r,i)=>{
+        const colors=['#ef4444','#f59e0b','#8b949e'];
+        return `<div class="risk-item">
+          <div class="risk-dot" style="background:${colors[i]||'#8b949e'}"></div>
+          <div>${r}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>
+
+  <!-- 近期新聞 -->
+  <div class="section-card">
+    <div class="section-title"><span class="icon">📰</span> 近期重大新聞</div>
+    <div class="news-list">
+      ${(d.news||[]).map(n=>`
+        <div class="news-item">
+          <div class="news-date">${n.date || ''}</div>
+          <div>${n.title}</div>
+        </div>`).join('')}
+    </div>
+  </div>
+
+  ${isFull ? `
+  <!-- 完整版額外資訊 -->
+  <div class="section-card">
+    <div class="section-title"><span class="icon">🔍</span> 完整版補充資訊</div>
+    <table class="eps-table">
+      <tr><td style="width:120px;color:var(--muted);">本益比（PE）</td><td>${d.pe_ratio||'—'}</td></tr>
+      <tr><td style="color:var(--muted);">營收趨勢</td><td>${d.revenue_trend||'—'}</td></tr>
+      <tr><td style="color:var(--muted);">主要競爭對手</td><td>${(d.competitors||[]).join('、')||'—'}</td></tr>
+      <tr><td style="color:var(--muted);">外資動向</td><td>${d.institution_buy||'—'}</td></tr>
+      <tr><td style="color:var(--muted);">投信動向</td><td>${d.institution_sell||'—'}</td></tr>
+      <tr><td style="color:var(--muted);">技術面</td><td>${d.technical||'—'}</td></tr>
+    </table>
+  </div>` : ''}
+  `;
+
+  const ra = document.getElementById('resultArea');
+  ra.innerHTML = html;
+  ra.style.display = 'block';
+
+  // ROE bar 動畫
+  setTimeout(() => {
+    const bar = document.getElementById('roeBar');
+    if (bar) bar.style.width = roePct + '%';
+  }, 100);
+
+  // EPS 圖表
+  if (epsChartInstance) { epsChartInstance.destroy(); epsChartInstance = null; }
+  const ctx = document.getElementById('epsChart');
+  if (ctx && epsHist.length) {
+    const avg = parseFloat(epsAvg);
+    epsChartInstance = new Chart(ctx.getContext('2d'), {
+      data: {
+        labels: epsHist.map(r=>r.year),
+        datasets: [
+          {
+            type: 'bar',
+            label: '年度EPS（元）',
+            data: epsHist.map(r=>r.eps),
+            backgroundColor: epsHist.map(r => r.eps >= avg ? 'rgba(37,99,235,0.7)' : 'rgba(239,68,68,0.6)'),
+            borderRadius: 5,
+            order: 2
+          },
+          {
+            type: 'line',
+            label: `平均EPS（${avg}元）`,
+            data: epsHist.map(()=>avg),
+            borderColor: '#f59e0b',
+            borderWidth: 2,
+            borderDash: [5,4],
+            pointRadius: 0,
+            fill: false,
+            order: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            labels: {
+              color: '#8b949e',
+              font: { family: 'Noto Sans TC', size: 12 }
+            }
+          },
+          tooltip: {
+            callbacks: { label: c => ` ${c.dataset.label}：${c.parsed.y} 元` }
+          }
+        },
+        scales: {
+          x: { ticks: { color: '#8b949e', font: { family: 'Noto Sans TC' } }, grid: { color: '#30363d' } },
+          y: {
+            ticks: { color: '#8b949e', font: { family: 'Noto Sans TC' }, callback: v => v+'元' },
+            grid: { color: '#30363d' },
+            title: { display: true, text: 'EPS（元）', color: '#8b949e' }
+          }
+        }
+      }
+    });
+  }
+}
+</script>
+</body>
+</html>
