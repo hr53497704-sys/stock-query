@@ -512,20 +512,18 @@ async function doSearch() {
   }, 2000);
 
   const prompt = buildPrompt(input, currentMode);
-  const OR_KEY = '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';
-  const systemPrompt = `你是台灣股市分析專家。使用者詢問一檔台灣股票，請依照指示格式，用繁體中文回覆。所有數字盡量給出具體估計值（可以說「約XXX」），不要說「無法確定」或「需要查詢」。如果是ETF，ROE欄位填「N/A（ETF）」。請嚴格按照JSON格式回覆，不要有任何其他文字、不要有markdown符號。`;
+  const GROQ_KEY = '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';
+  const systemPrompt = 'You are a Taiwan stock market expert. The user asks about a Taiwan stock. Reply in Traditional Chinese. Give specific estimated numbers. If ETF, ROE field fill N/A(ETF). Reply ONLY in strict JSON format, no other text, no markdown.';
 
   try {
-    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + OR_KEY,
-        'HTTP-Referer': 'https://hr53497704-sys.github.io/stock-query/',
-        'X-Title': 'Stock-AI-System'
+        'Authorization': 'Bearer ' + GROQ_KEY
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.0-flash-exp:free',
+        model: 'llama-3.3-70b-versatile',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: prompt }
