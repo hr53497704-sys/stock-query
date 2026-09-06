@@ -250,7 +250,31 @@ function buildPrompt(stock, mode, yahooData){
     }catch(e){}
   }
 
+  // 動態計算年份
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  const prevYear = currentYear - 1;
+  const prev2Year = currentYear - 2;
+  const prev3Year = currentYear - 3;
+  
+  // 判斷當前季度
+  const currentQ = Math.ceil(currentMonth / 3);
+  
+  // 建立未來4季（從當前季度開始）
+  let forecastQuarters = [];
+  let q = currentQ;
+  let y = currentYear;
+  for(let i = 0; i < 4; i++){
+    const isAlreadyPublished = (y < currentYear) || (y === currentYear && q < currentQ);
+    const note = isAlreadyPublished ? "已公布實際值" : (q <= currentQ + 1 ? "法人預估" : "法人預估（參考）");
+    forecastQuarters.push(`{"quarter":"${y} Q${q}","eps":數字,"note":"${note}"}`);
+    q++;
+    if(q > 4){ q = 1; y++; }
+  }
+
   return `請分析台灣股票「${stock}」。${yahooInfo}
+現在時間是${currentYear}年第${currentQ}季。
 
 回覆以下JSON格式（所有數字給具體估計值，ETF的ROE填"N/A"）：
 {
@@ -260,18 +284,14 @@ function buildPrompt(stock, mode, yahooData){
   "founded_year": 上市年份數字,
   "analogy": "用2~3句生活化比喻說明公司業務，讓小學生也懂",
   "roe_latest": ROE數字（純數字如20.5）,
-  "roe_3y": ["2022年ROE","2023年ROE","2024年ROE"],
+  "roe_3y": ["${prev3Year}年ROE","${prev2Year}年ROE","${prevYear}年ROE"],
   "roe_comment": "一句話ROE評語",
   "eps_history": [
-    {"year":"上市年份","eps":數字},
-    {"year":"隔年","eps":數字},
-    ...一直到2024年的每一年EPS
+    從公司上市第一年開始，每一年一筆，一直到${prevYear}年，格式：{"year":"年份","eps":數字}
   ],
   "eps_forecast": [
-    {"quarter":"2025 Q1","eps":數字,"note":"已公布實際值或預估"},
-    {"quarter":"2025 Q2","eps":數字,"note":"已公布實際值或預估"},
-    {"quarter":"2025 Q3","eps":數字,"note":"法人預估"},
-    {"quarter":"2025 Q4","eps":數字,"note":"法人預估"}
+    ${forecastQuarters.join(',
+    ')}
   ],
   "target_price": "法人平均目標價（如：約1100~1200元）",
   "price_comment": "現在股價相對目標價的評語",
@@ -404,7 +424,7 @@ function renderResult(d, query, yahooData){
 
   <div class="section-card">
     <div class="section-title">
-      <span>📊</span> 歷年EPS走勢（${d.founded_year||'上市'}年至今，均值 ${epsAvg} 元）
+      <span>📊</span> 歷年EPS走勢（${d.founded_year||'上市'}年～${new Date().getFullYear()-1}年，均值 ${epsAvg} 元）
       <span class="ai-source">AI估算</span>
     </div>
     <div class="chart-wrap"><canvas id="epsChart"></canvas></div>
@@ -412,7 +432,7 @@ function renderResult(d, query, yahooData){
   </div>
 
   <div class="section-card">
-    <div class="section-title"><span>📅</span> 未來4季EPS預估（2025年）<span class="ai-source">AI參考估算</span></div>
+    <div class="section-title"><span>📅</span> 未來4季EPS預估（${new Date().getFullYear()}年）<span class="ai-source">AI參考估算</span></div>
     <table class="eps-table">
       <tr><th>季度</th><th>預估EPS（元）</th><th>備註</th></tr>
       ${(d.eps_forecast||[]).map(r=>{
