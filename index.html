@@ -512,27 +512,34 @@ async function doSearch() {
   }, 2000);
 
   const prompt = buildPrompt(input, currentMode);
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        system: `你是台灣股市分析專家。使用者詢問一檔台灣股票，請依照指示格式，用繁體中文回覆。
+  const GEMINI_KEY = 'AQ.Ab8RN6LjpxyzU4dROtA9yK4YRbMjXruOWrNGnqzLA1BI1eI8-g';
+  const systemPrompt = `你是台灣股市分析專家。使用者詢問一檔台灣股票，請依照指示格式，用繁體中文回覆。
 所有數字盡量給出具體估計值（可以說「約XXX」），不要說「無法確定」或「需要查詢」。
 如果是ETF，ROE欄位填「N/A（ETF）」。
-請嚴格按照JSON格式回覆，不要有任何其他文字、不要有markdown符號。`,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
+請嚴格按照JSON格式回覆，不要有任何其他文字、不要有markdown符號。`;
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
+        })
+      }
+    );
 
     clearInterval(msgTimer);
 
-    if (!res.ok) throw new Error(`API錯誤 ${res.status}`);
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(`API錯誤 ${res.status}：${errData?.error?.message || '未知錯誤'}`);
+    }
     const data = await res.json();
-    const text = data.content.map(b => b.text || '').join('');
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
     let json;
     try {
