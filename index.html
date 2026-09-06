@@ -3,464 +3,374 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>股票分析系統｜吳家榮</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<title>台股查詢中心｜吳家榮</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh}
-.topbar{background:#161b22;border-bottom:1px solid #30363d;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar{background:#161b22;border-bottom:1px solid #30363d;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .logo{display:flex;align-items:center;gap:10px}
 .logo-icon{width:34px;height:34px;background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
 .logo-text{font-size:15px;font-weight:700}
 .logo-sub{font-size:10px;color:#8b949e}
-.badge-live{display:flex;align-items:center;gap:6px;background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.3);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700}
-.live-dot{width:7px;height:7px;background:#10b981;border-radius:50%;animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.container{max-width:980px;margin:0 auto;padding:28px 16px 60px}
-.search-card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:28px;margin-bottom:24px}
-.search-label{font-size:13px;color:#8b949e;margin-bottom:10px;font-weight:500}
+.live-badge{display:flex;align-items:center;gap:5px;background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.3);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700}
+.live-dot{width:6px;height:6px;background:#10b981;border-radius:50%;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.container{max-width:920px;margin:0 auto;padding:24px 16px 60px}
+
+/* 搜尋 */
+.search-card{background:#161b22;border:1px solid #30363d;border-radius:14px;padding:28px;margin-bottom:22px}
+.search-title{font-size:18px;font-weight:900;margin-bottom:5px}
+.search-sub{font-size:12px;color:#8b949e;margin-bottom:16px}
 .search-row{display:flex;gap:10px}
-.search-input{flex:1;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:12px 16px;color:#e6edf3;font-size:15px;font-family:inherit;outline:none;transition:border-color .2s}
-.search-input:focus{border-color:#3b82f6}
-.search-input::placeholder{color:#8b949e}
-.btn-search{background:#2563eb;color:white;border:none;border-radius:8px;padding:12px 26px;font-size:14px;font-family:inherit;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .2s}
-.btn-search:hover:not(:disabled){background:#3b82f6}
-.btn-search:disabled{opacity:.5;cursor:not-allowed}
-.quick-picks{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
-.quick-picks span{font-size:12px;color:#8b949e}
-.chip{background:#1c2230;border:1px solid #30363d;border-radius:20px;padding:4px 14px;font-size:12px;cursor:pointer;color:#e6edf3;transition:all .15s}
-.chip:hover{border-color:#3b82f6;color:#3b82f6}
-.loading{display:none;padding:50px 0;text-align:center}
-.spinner{width:44px;height:44px;border:3px solid #30363d;border-top-color:#3b82f6;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-steps{display:flex;flex-direction:column;gap:6px;margin-top:12px;align-items:flex-start;display:inline-flex}
-.step-item{font-size:13px;color:#8b949e;display:flex;align-items:center;gap:8px}
-.step-item.done{color:#10b981}
-.step-item.active{color:#3b82f6}
-.step-icon{width:16px;text-align:center}
-.error-box{display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.4);border-radius:10px;padding:14px 18px;color:#fca5a5;font-size:13px;margin-bottom:18px}
-.result-area{display:none}
+.si{flex:1;background:#0d1117;border:2px solid #30363d;border-radius:10px;padding:13px 18px;color:#e6edf3;font-size:18px;font-family:inherit;outline:none;transition:border-color .2s;font-weight:700;letter-spacing:3px}
+.si:focus{border-color:#2563eb}
+.si::placeholder{color:#8b949e;font-weight:400;letter-spacing:0;font-size:14px}
+.btn-q{background:#2563eb;color:white;border:none;border-radius:10px;padding:13px 26px;font-size:15px;font-family:inherit;font-weight:700;cursor:pointer;transition:background .2s}
+.btn-q:hover{background:#3b82f6}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;align-items:center}
+.chips span{font-size:11px;color:#8b949e}
+.chip{background:#1c2230;border:1px solid #30363d;border-radius:20px;padding:4px 13px;font-size:12px;cursor:pointer;color:#e6edf3;transition:all .15s}
+.chip:hover{border-color:#2563eb;color:#3b82f6;background:rgba(37,99,235,0.1)}
+
 /* 股票標頭 */
-.stock-header{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:22px 26px;margin-bottom:18px}
-.stock-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px}
-.stock-name{font-size:26px;font-weight:900}
-.stock-code{font-size:13px;color:#8b949e;margin-top:4px}
-.industry-badge{background:rgba(37,99,235,0.15);color:#3b82f6;border:1px solid rgba(37,99,235,0.3);border-radius:20px;padding:5px 16px;font-size:13px;font-weight:700}
+.stock-hdr{display:none;background:#161b22;border:1px solid #30363d;border-radius:14px;padding:20px 24px;margin-bottom:18px}
+.sname{font-size:26px;font-weight:900}
+.smeta{font-size:12px;color:#8b949e;margin-top:4px}
+.ibadge{background:rgba(37,99,235,0.15);color:#3b82f6;border:1px solid rgba(37,99,235,0.3);border-radius:8px;padding:4px 14px;font-size:13px;font-weight:700}
+
 /* 即時股價 */
-.price-section{margin-top:16px;padding:16px;background:#0d1117;border-radius:10px;border:1px solid #30363d}
-.price-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-.price-main{display:flex;align-items:baseline;gap:12px}
-.price-num{font-size:36px;font-weight:900;color:#e6edf3}
-.price-up{color:#10b981;font-size:14px;font-weight:700}
-.price-down{color:#ef4444;font-size:14px;font-weight:700}
-.price-stats{display:grid;grid-template-columns:repeat(4,auto);gap:16px}
-.pstat{text-align:center}
-.pstat-label{font-size:10px;color:#8b949e;margin-bottom:3px}
-.pstat-val{font-size:13px;font-weight:700}
-.source-tag{font-size:10px;color:#10b981;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:4px;padding:2px 7px;display:inline-block;margin-top:8px}
-.ai-tag{font-size:10px;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:4px;padding:2px 7px;display:inline-block}
-/* 資訊卡 */
-.cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
-.icard{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:16px 18px}
-.icard-label{font-size:11px;color:#8b949e;margin-bottom:7px}
-.icard-val{font-size:20px;font-weight:900}
-.icard-sub{font-size:11px;color:#8b949e;margin-top:4px}
-.c-green{color:#10b981}.c-gold{color:#f59e0b}.c-blue{color:#3b82f6}.c-red{color:#ef4444}
-/* 章節卡 */
-.scard{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:22px 24px;margin-bottom:18px}
-.scard-title{font-size:13px;font-weight:700;color:#8b949e;border-bottom:1px solid #30363d;padding-bottom:10px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-/* EPS表格 */
-.eps-tbl{width:100%;border-collapse:collapse;font-size:13px}
-.eps-tbl th{background:#1c2230;color:#8b949e;padding:8px 12px;text-align:left;font-weight:500;font-size:11px}
-.eps-tbl td{padding:9px 12px;border-bottom:1px solid #1c2230}
-.eps-tbl tr:last-child td{border-bottom:none}
-.eps-tbl tr:hover td{background:rgba(37,99,235,0.05)}
-.ep{color:#10b981;font-weight:700}.en{color:#ef4444;font-weight:700}
-/* 圖表 */
-.chart-wrap{height:260px;position:relative;margin-top:10px}
-/* ROE儀表 */
-.roe-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
-.roe-big{font-size:48px;font-weight:900;line-height:1}
-.roe-bar-bg{height:8px;background:#30363d;border-radius:8px;overflow:hidden;margin:8px 0 4px}
-.roe-bar-fill{height:100%;border-radius:8px;transition:width 1s ease}
-.roe-labels{display:flex;justify-content:space-between;font-size:10px;color:#8b949e}
-/* 風險 */
-.risk-list{display:flex;flex-direction:column;gap:8px}
-.risk-row{display:flex;gap:10px;padding:11px 13px;background:#1c2230;border-radius:8px;font-size:13px;line-height:1.6}
-.rdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px}
-/* 免責 */
-.disclaimer{text-align:center;font-size:11px;color:#8b949e;margin-top:6px;padding:14px;border-top:1px solid #30363d}
+.price-box{background:#0d1117;border:1px solid #30363d;border-radius:10px;padding:16px 20px;margin-top:14px}
+.psrc{font-size:11px;color:#10b981;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.prow{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.pnum{font-size:38px;font-weight:900}
+.pup{color:#10b981;font-size:14px;font-weight:700;margin-top:3px}
+.pdn{color:#ef4444;font-size:14px;font-weight:700;margin-top:3px}
+.pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid #30363d}
+.pg-item .pg-lbl{font-size:10px;color:#8b949e;margin-bottom:2px}
+.pg-item .pg-val{font-size:13px;font-weight:700}
+
+/* 分類標籤 */
+.tab-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tab{padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid #30363d;background:#161b22;color:#8b949e;transition:all .2s}
+.tab.active{background:rgba(37,99,235,0.15);border-color:#2563eb;color:#3b82f6}
+
+/* 按鈕卡片 */
+.section-hdr{font-size:12px;font-weight:700;color:#8b949e;margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.btn-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:4px}
+.lbtn{display:flex;align-items:center;gap:12px;padding:15px 16px;background:#161b22;border:1px solid #30363d;border-radius:12px;cursor:pointer;text-decoration:none;color:#e6edf3;transition:all .2s;position:relative;overflow:hidden}
+.lbtn:hover{border-color:#2563eb;background:rgba(37,99,235,0.07);transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,0.15)}
+.lbtn .bi{font-size:22px;flex-shrink:0}
+.lbtn .bc{flex:1;min-width:0}
+.lbtn .bt{font-size:13px;font-weight:700;margin-bottom:3px}
+.lbtn .bd{font-size:11px;color:#8b949e;line-height:1.4}
+.lbtn .ba{color:#8b949e;font-size:14px;flex-shrink:0}
+.lbtn:hover .ba{color:#3b82f6}
+.tag-r{position:absolute;top:8px;right:8px;font-size:9px;background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3);border-radius:4px;padding:1px 6px}
+.tag-b{position:absolute;top:8px;right:8px;font-size:9px;background:rgba(37,99,235,0.15);color:#3b82f6;border:1px solid rgba(37,99,235,0.3);border-radius:4px;padding:1px 6px}
+.tag-g{position:absolute;top:8px;right:8px;font-size:9px;background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);border-radius:4px;padding:1px 6px}
+
+/* SOP */
+.sop-card{background:#161b22;border:1px solid #30363d;border-radius:14px;padding:20px 24px;margin-bottom:18px}
+.sop-steps{display:flex;flex-direction:column;gap:9px;margin-top:12px}
+.sop-row{display:flex;align-items:flex-start;gap:12px;padding:11px 14px;background:#1c2230;border-radius:10px}
+.sop-n{width:24px;height:24px;background:#2563eb;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+.sop-t{font-size:13px;line-height:1.5;color:#e6edf3}
+.sop-t strong{color:#3b82f6}
+.sop-t .site{color:#10b981;font-weight:700}
+
+/* 注意提示 */
 .notice{background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:9px 13px;font-size:12px;color:#f59e0b;margin-top:10px}
-@media(max-width:640px){.cards-grid{grid-template-columns:1fr 1fr}.search-row{flex-direction:column}.price-stats{grid-template-columns:repeat(2,auto)}}
+.notice-blue{background:rgba(37,99,235,0.07);border:1px solid rgba(37,99,235,0.25);border-radius:8px;padding:9px 13px;font-size:12px;color:#3b82f6;margin-top:10px}
+
+.disclaimer{text-align:center;font-size:11px;color:#8b949e;padding:14px;border-top:1px solid #30363d;margin-top:8px}
+@media(max-width:600px){.btn-grid{grid-template-columns:1fr}.pgrid{grid-template-columns:repeat(2,1fr)}.search-row{flex-direction:column}}
 </style>
 </head>
 <body>
 <div class="topbar">
   <div class="logo">
     <div class="logo-icon">📈</div>
-    <div><div class="logo-text">股票分析系統</div><div class="logo-sub">吳家榮 個人投資參考</div></div>
+    <div><div class="logo-text">台股查詢中心</div><div class="logo-sub">吳家榮 個人投資參考工具</div></div>
   </div>
-  <div class="badge-live"><span class="live-dot"></span>即時數據</div>
+  <div class="live-badge"><span class="live-dot"></span>真實資料版</div>
 </div>
 
 <div class="container">
+
+  <!-- 搜尋 -->
   <div class="search-card">
-    <div class="search-label">輸入股票代號（純數字）</div>
+    <div class="search-title">🔍 輸入股票代號</div>
+    <div class="search-sub">輸入後自動顯示即時股價，並一鍵開啟所有真實資料來源</div>
     <div class="search-row">
-      <input class="search-input" id="si" type="text" placeholder="例如：2330、2454、0050…" maxlength="10"/>
-      <button class="btn-search" id="sb" onclick="doSearch()">🔍 查詢</button>
+      <input class="si" id="si" type="number" placeholder="輸入代號，例如：2330"/>
+      <button class="btn-q" onclick="doQuery()">查詢</button>
     </div>
-    <div class="quick-picks">
+    <div class="chips">
       <span>熱門：</span>
-      <div class="chip" onclick="qp('2330')">台積電 2330</div>
-      <div class="chip" onclick="qp('2454')">聯發科 2454</div>
-      <div class="chip" onclick="qp('2317')">鴻海 2317</div>
-      <div class="chip" onclick="qp('2308')">台達電 2308</div>
-      <div class="chip" onclick="qp('2412')">中華電 2412</div>
-      <div class="chip" onclick="qp('2881')">富邦金 2881</div>
-      <div class="chip" onclick="qp('0050')">元大台灣50</div>
+      <div class="chip" onclick="sc('2330')">台積電</div>
+      <div class="chip" onclick="sc('2454')">聯發科</div>
+      <div class="chip" onclick="sc('2317')">鴻海</div>
+      <div class="chip" onclick="sc('2308')">台達電</div>
+      <div class="chip" onclick="sc('2412')">中華電</div>
+      <div class="chip" onclick="sc('2881')">富邦金</div>
+      <div class="chip" onclick="sc('2882')">國泰金</div>
+      <div class="chip" onclick="sc('2303')">聯電</div>
+      <div class="chip" onclick="sc('2002')">中鋼</div>
+      <div class="chip" onclick="sc('0050')">元大台灣50</div>
+      <div class="chip" onclick="sc('00878')">國泰高股息</div>
+      <div class="chip" onclick="sc('00929')">復華台灣科技</div>
     </div>
   </div>
 
-  <div class="error-box" id="eb"></div>
-
-  <div class="loading" id="ld">
-    <div class="spinner"></div>
-    <div class="loading-steps">
-      <div class="step-item" id="s1"><span class="step-icon">⏳</span>查詢即時股價（台灣證交所）</div>
-      <div class="step-item" id="s2"><span class="step-icon">⏳</span>抓取歷年財務資料</div>
-      <div class="step-item" id="s3"><span class="step-icon">⏳</span>AI分析產業與風險</div>
+  <!-- 股票標頭+即時股價 -->
+  <div class="stock-hdr" id="stockHdr">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+      <div>
+        <div class="sname" id="sname">—</div>
+        <div class="smeta" id="smeta"></div>
+      </div>
+      <div class="ibadge" id="sbadge"></div>
+    </div>
+    <div class="price-box">
+      <div class="psrc"><span class="live-dot"></span>台灣證交所即時報價</div>
+      <div id="priceArea"><div style="color:#8b949e;font-size:13px">⏳ 載入中…</div></div>
     </div>
   </div>
 
-  <div class="result-area" id="ra"></div>
+  <!-- 查詢區（有股票後才顯示） -->
+  <div id="queryArea" style="display:none">
+
+    <!-- 分類Tab -->
+    <div class="tab-row">
+      <div class="tab active" onclick="switchTab('finance',this)">📊 財務資料</div>
+      <div class="tab" onclick="switchTab('chips',this)">👥 籌碼面</div>
+      <div class="tab" onclick="switchTab('tech',this)">📈 技術面</div>
+      <div class="tab" onclick="switchTab('news',this)">📰 新聞公告</div>
+    </div>
+
+    <!-- 財務資料 -->
+    <div id="tab-finance">
+      <div class="section-hdr">📊 歷年財務資料（EPS / ROE / 股利）</div>
+      <div class="btn-grid" id="g-finance"></div>
+      <div class="notice">💡 點「Goodinfo 歷年EPS」→ 可看從上市第一年到現在的完整EPS走勢，含平均值</div>
+
+      <div class="section-hdr">🎯 法人目標價 & EPS預估</div>
+      <div class="btn-grid" id="g-target"></div>
+      <div class="notice">💡 點「CMoney法人預估」→ 可看分析師對未來4季EPS的預估值（真實法人報告）</div>
+    </div>
+
+    <!-- 籌碼面 -->
+    <div id="tab-chips" style="display:none">
+      <div class="section-hdr">👥 三大法人 & 大戶持股</div>
+      <div class="btn-grid" id="g-chips"></div>
+      <div class="notice-blue">💡 集保每周動態：點「集保結算所」→ 選股票代號 → 看各區間持股人數變化<br>大戶（持股400張以上）比例上升 = 籌碼集中 = 好信號 ✅</div>
+
+      <div class="section-hdr">🏦 集保 & 融資融券</div>
+      <div class="btn-grid" id="g-margin"></div>
+    </div>
+
+    <!-- 技術面 -->
+    <div id="tab-tech" style="display:none">
+      <div class="section-hdr">📈 K線圖 & 技術指標</div>
+      <div class="btn-grid" id="g-tech"></div>
+      <div class="notice">💡 技術面看什麼？<br>
+        🟢 <strong>進場信號：</strong>股價站上月線（MA20）+ KD黃金交叉 + 外資連續買超<br>
+        🔴 <strong>底部區域：</strong>本益比低於歷史平均 + 法人大量買超 + 跌幅超過30%
+      </div>
+      <div class="notice-blue" style="margin-top:8px">
+        🤖 <strong>未來升級：</strong>待串接 Claude AI 後，可自動分析技術面並給出進場建議
+      </div>
+    </div>
+
+    <!-- 新聞公告 -->
+    <div id="tab-news" style="display:none">
+      <div class="section-hdr">📰 最新新聞 & 法人報告</div>
+      <div class="btn-grid" id="g-news"></div>
+
+      <div class="section-hdr">📋 官方公告 & 財報</div>
+      <div class="btn-grid" id="g-official"></div>
+    </div>
+
+  </div>
+
+  <!-- 查詢SOP（沒輸入代號時顯示） -->
+  <div class="sop-card" id="sopCard">
+    <div style="font-size:15px;font-weight:700;margin-bottom:4px">📋 查詢SOP — 每次查股票照這個流程</div>
+    <div style="font-size:12px;color:#8b949e;margin-bottom:2px">輸入代號後，依序點擊各按鈕查詢</div>
+    <div class="sop-steps">
+      <div class="sop-row">
+        <div class="sop-n">1</div>
+        <div class="sop-t">輸入代號 → 自動顯示<strong>即時股價</strong>（台灣證交所真實報價）</div>
+      </div>
+      <div class="sop-row">
+        <div class="sop-n">2</div>
+        <div class="sop-t">點「財務資料」→ <span class="site">Goodinfo</span> 看<strong>歷年EPS走勢圖 + 平均值</strong>，判斷公司賺不賺錢</div>
+      </div>
+      <div class="sop-row">
+        <div class="sop-n">3</div>
+        <div class="sop-t">點「財務資料」→ <span class="site">CMoney</span> 看<strong>法人目標價 + 未來4季EPS預估</strong>，判斷現在貴還是便宜</div>
+      </div>
+      <div class="sop-row">
+        <div class="sop-n">4</div>
+        <div class="sop-t">點「籌碼面」→ <span class="site">集保結算所</span> 看<strong>每周大戶持股比例</strong>，判斷主力動向</div>
+      </div>
+      <div class="sop-row">
+        <div class="sop-n">5</div>
+        <div class="sop-t">點「籌碼面」→ <span class="site">股狗網</span> 看<strong>外資投信買賣超</strong>，法人最近買還是賣</div>
+      </div>
+      <div class="sop-row">
+        <div class="sop-n">6</div>
+        <div class="sop-t">點「技術面」→ <span class="site">Yahoo股市</span> 看<strong>K線圖 + 均線</strong>，判斷進場時機</div>
+      </div>
+      <div class="sop-row">
+        <div class="sop-n">7</div>
+        <div class="sop-t">點「新聞公告」→ <span class="site">Yahoo財經</span> 確認<strong>最新消息</strong>，有沒有重大利多利空</div>
+      </div>
+    </div>
+  </div>
 
   <div class="disclaimer">
-    ⚠️ 股價資料來源：台灣證交所｜歷年EPS來源：公開資訊觀測站｜AI分析僅供參考，不構成投資建議
+    ⚠️ 股價：台灣證交所｜財務：Goodinfo / 公開資訊觀測站｜籌碼：集保結算所 / 股狗網｜本工具僅供個人參考，不構成投資建議
   </div>
 </div>
 
 <script>
-const GROQ_KEY = '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';
-let epsChart = null;
+let curCode = '';
 
-function qp(v){ document.getElementById('si').value=v; doSearch(); }
-document.getElementById('si').addEventListener('keydown',e=>{ if(e.key==='Enter') doSearch(); });
+function sc(c){ document.getElementById('si').value=c; doQuery(); }
+document.getElementById('si').addEventListener('keydown',e=>{ if(e.key==='Enter') doQuery(); });
 
-function setStep(n, status){
-  for(let i=1;i<=3;i++){
-    const el = document.getElementById('s'+i);
-    el.className = 'step-item' + (i<n?' done':i===n?' active':'');
-    el.querySelector('.step-icon').textContent = i<n?'✅':i===n?'🔄':'⏳';
-  }
-}
-
-function showError(msg){
-  document.getElementById('ld').style.display='none';
-  document.getElementById('sb').disabled=false;
-  const eb=document.getElementById('eb');
-  eb.style.display='block';
-  eb.textContent='❌ '+msg;
-}
-
-// ① 抓台灣證交所即時股價
-async function fetchTWSEPrice(code){
-  try{
-    const url = 'https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=tse_'+code+'.tw&json=1&delay=0';
-    const proxy = 'https://api.allorigins.win/raw?url='+encodeURIComponent(url);
-    const res = await fetch(proxy);
-    const data = await res.json();
-    const d = data?.msgArray?.[0];
-    if(!d) return null;
-    return {
-      name: d.n,
-      code: d.c,
-      price: parseFloat(d.z)||parseFloat(d.y),
-      open: parseFloat(d.o),
-      high: parseFloat(d.h),
-      low: parseFloat(d.l),
-      close: parseFloat(d.y), // 昨收
-      volume: parseInt(d.v),
-      change: (parseFloat(d.z)||parseFloat(d.y)) - parseFloat(d.y),
-      changePct: (((parseFloat(d.z)||parseFloat(d.y)) - parseFloat(d.y))/parseFloat(d.y)*100)
-    };
-  }catch(e){ return null; }
-}
-
-// ② 抓歷年EPS（公開資訊觀測站）
-async function fetchEPSHistory(code){
-  try{
-    // 用 goodinfo API proxy
-    const url = 'https://goodinfo.tw/tw/StockFinDetail.asp?STOCK_ID='+code+'&RPT_CAT=Q_EPSy';
-    const proxy = 'https://api.allorigins.win/raw?url='+encodeURIComponent(url);
-    const res = await fetch(proxy, {headers:{'User-Agent':'Mozilla/5.0'}});
-    const html = await res.text();
-    
-    // 解析HTML抓EPS資料
-    const rows = [];
-    const regex = /<tr[^>]*>[\s\S]*?<\/tr>/gi;
-    const tdRegex = /<td[^>]*>([\s\S]*?)<\/td>/gi;
-    const matches = html.match(regex)||[];
-    
-    for(const row of matches){
-      const cells = [];
-      let m;
-      const tdr = /<td[^>]*>([\s\S]*?)<\/td>/gi;
-      while((m=tdr.exec(row))!==null){
-        const txt = m[1].replace(/<[^>]+>/g,'').trim();
-        cells.push(txt);
-      }
-      if(cells.length>=2 && /^\d{4}$/.test(cells[0])){
-        const yr = parseInt(cells[0]);
-        const eps = parseFloat(cells[1]);
-        if(yr>=1990 && yr<=2030 && !isNaN(eps)){
-          rows.push({year:yr, eps:eps});
-        }
-      }
-    }
-    
-    if(rows.length > 0) return rows.sort((a,b)=>a.year-b.year);
-    return null;
-  }catch(e){ return null; }
-}
-
-// ③ Groq AI分析（只做文字部分，不猜數字）
-async function fetchAIAnalysis(code, name, priceData, mode){
-  const now = new Date();
-  const cy = now.getFullYear();
-  const cq = Math.ceil((now.getMonth()+1)/3);
-  const full = mode==='full';
-  
-  const prompt = '請分析台灣上市公司股票代號'+code+'（'+(name||code)+'）。現在是'+cy+'年Q'+cq+'。'+
-    '請回覆純JSON格式，不要markdown，格式如下：'+
-    '{"industry":"產業分類2~4字",'+
-    '"analogy":"用2~3句話生活化解釋這公司做什麼，讓小學生懂",'+
-    '"roe_comment":"ROE近年表現一句話評語",'+
-    '"target_price":"法人平均目標價（寫明約幾元）",'+
-    '"price_comment":"目前股價與目標價相比的評語",'+
-    '"dividend_comment":"股利政策特色一句話",'+
-    '"eps_q_forecast":['+
-    '{"q":"'+cy+' Q'+cq+'","eps":數字,"note":"已公布或預估"},'+
-    '{"q":"'+cy+' Q'+(cq<4?cq+1:1)+'","eps":數字,"note":"法人預估"},'+
-    '{"q":"'+(cq<3?cy:cy+1)+' Q'+(cq<3?cq+2:cq-2)+'","eps":數字,"note":"法人預估"},'+
-    '{"q":"'+(cq<2?cy:cy+1)+' Q'+(cq<2?cq+3:cq-1)+'","eps":數字,"note":"法人預估"}'+
-    '],'+
-    '"risks":["風險1","風險2","風險3"]'+
-    (full?',"revenue_trend":"營收趨勢一句話","competitors":["對手1","對手2"],"technical":"技術面簡評"':'')+
-    '}';
-
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROQ_KEY},
-    body:JSON.stringify({
-      model:'openai/gpt-oss-20b',
-      messages:[
-        {role:'system',content:'你是台灣股市分析師，只回覆純JSON，不加任何說明文字。'},
-        {role:'user',content:prompt}
-      ],
-      max_tokens:800,
-      temperature:0.3
-    })
+function switchTab(name, el){
+  ['finance','chips','tech','news'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display = t===name?'block':'none';
   });
-  if(!res.ok){ const e=await res.json(); throw new Error('AI錯誤 '+res.status+'：'+(e?.error?.message||'未知')); }
-  const data = await res.json();
-  const text = data.choices?.[0]?.message?.content||'';
-  const clean = text.replace(/```json|```/g,'').trim();
-  return JSON.parse(clean);
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
 }
 
-let currentMode = 'lite';
+async function doQuery(){
+  const raw = document.getElementById('si').value.trim();
+  const code = raw.replace(/[^0-9]/g,'');
+  if(!code||code.length<4){ alert('請輸入4~6位數字股票代號'); return; }
+  curCode = code;
 
-async function doSearch(){
-  const input = document.getElementById('si').value.trim().replace(/[^0-9]/g,'');
-  if(!input){ showError('請輸入純數字股票代號（如：2330）'); return; }
+  document.getElementById('stockHdr').style.display='block';
+  document.getElementById('queryArea').style.display='block';
+  document.getElementById('sopCard').style.display='none';
+  document.getElementById('sbadge').textContent=code;
+  document.getElementById('sname').textContent='查詢中…';
+  document.getElementById('smeta').textContent='';
+  document.getElementById('priceArea').innerHTML='<div style="color:#8b949e;font-size:13px">⏳ 載入即時股價…</div>';
 
-  document.getElementById('eb').style.display='none';
-  document.getElementById('ra').style.display='none';
-  document.getElementById('ld').style.display='block';
-  document.getElementById('sb').disabled=true;
-  setStep(1,'active');
+  buildLinks(code);
+  await fetchPrice(code);
+}
 
+async function fetchPrice(code){
+  const tryFetch = async (market)=>{
+    const url='https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch='+market+'_'+code+'.tw&json=1&delay=0';
+    const r=await fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(url));
+    return await r.json();
+  };
   try{
-    // Step 1: 即時股價
-    const priceData = await fetchTWSEPrice(input);
-    setStep(2,'active');
-
-    // Step 2: 歷年EPS
-    const epsHistory = await fetchEPSHistory(input);
-    setStep(3,'active');
-
-    // Step 3: AI分析
-    const aiData = await fetchAIAnalysis(input, priceData?.name, priceData, currentMode);
-
-    document.getElementById('ld').style.display='none';
-    document.getElementById('sb').disabled=false;
-    renderResult(input, priceData, epsHistory, aiData);
-  }catch(err){
-    showError(err.message);
+    let data = await tryFetch('tse');
+    let d = data?.msgArray?.[0];
+    let market = '上市';
+    if(!d||d.z==='-'||!d.z){
+      data = await tryFetch('otc');
+      d = data?.msgArray?.[0];
+      market = '上櫃';
+    }
+    if(d&&d.z&&d.z!=='-'){
+      const p=parseFloat(d.z), prev=parseFloat(d.y);
+      const chg=p-prev, pct=(chg/prev*100).toFixed(2);
+      const sign=chg>=0?'+':'', cls=chg>=0?'pup':'pdn';
+      document.getElementById('sname').textContent=d.n||('股票 '+code);
+      document.getElementById('smeta').textContent='市場：'+market+' ｜ 成交量：'+parseInt(d.v||0).toLocaleString()+' 張 ｜ '+new Date().toLocaleTimeString('zh-TW');
+      document.getElementById('priceArea').innerHTML=`
+        <div class="prow">
+          <div>
+            <div class="pnum">NT$ ${p.toFixed(2)}</div>
+            <div class="${cls}">${sign}${chg.toFixed(2)} 元（${sign}${pct}%）</div>
+          </div>
+          <div style="text-align:right;font-size:11px;color:#8b949e">更新時間<br>${d.t||'盤中'}</div>
+        </div>
+        <div class="pgrid">
+          <div class="pg-item"><div class="pg-lbl">開盤</div><div class="pg-val">${d.o||'—'}</div></div>
+          <div class="pg-item"><div class="pg-lbl">最高</div><div class="pg-val" style="color:#10b981">${d.h||'—'}</div></div>
+          <div class="pg-item"><div class="pg-lbl">最低</div><div class="pg-val" style="color:#ef4444">${d.l||'—'}</div></div>
+          <div class="pg-item"><div class="pg-lbl">昨收</div><div class="pg-val">${d.y||'—'}</div></div>
+        </div>`;
+    } else {
+      document.getElementById('sname').textContent='股票 '+code;
+      document.getElementById('priceArea').innerHTML=`<div style="color:#8b949e;font-size:13px;padding:6px 0">
+        ⚠️ 非交易時間或查無報價 →
+        <a href="https://tw.stock.yahoo.com/quote/${code}" target="_blank" style="color:#3b82f6">Yahoo股市查看</a>
+      </div>`;
+    }
+  }catch(e){
+    document.getElementById('priceArea').innerHTML=`<div style="color:#8b949e;font-size:13px;padding:6px 0">
+      ⚠️ 股價載入失敗 →
+      <a href="https://tw.stock.yahoo.com/quote/${code}" target="_blank" style="color:#3b82f6">Yahoo股市查看</a>
+    </div>`;
   }
 }
 
-function renderResult(code, price, epsHist, ai){
-  const now = new Date();
-  const cy = now.getFullYear();
+function buildLinks(code){
+  const L = (icon,title,desc,url,tag,tagText)=>
+    `<a class="lbtn" href="${url}" target="_blank" rel="noopener">
+      <div class="bi">${icon}</div>
+      <div class="bc"><div class="bt">${title}</div><div class="bd">${desc}</div></div>
+      <div class="ba">↗</div>
+      <div class="tag-${tag}">${tagText}</div>
+    </a>`;
 
-  // 股價區塊
-  let priceHtml='';
-  if(price && price.price){
-    const chg = price.change||0;
-    const chgPct = price.changePct||0;
-    const chgCls = chg>=0?'price-up':'price-down';
-    const chgSign = chg>=0?'+':'';
-    priceHtml=`
-    <div class="price-section">
-      <div class="price-row">
-        <div>
-          <div class="source-tag">📡 台灣證交所即時報價</div>
-          <div class="price-main" style="margin-top:6px">
-            <div class="price-num">NT$ ${price.price.toFixed(2)}</div>
-            <div class="${chgCls}">${chgSign}${chg.toFixed(2)} (${chgSign}${chgPct.toFixed(2)}%)</div>
-          </div>
-        </div>
-        <div class="price-stats">
-          <div class="pstat"><div class="pstat-label">開盤</div><div class="pstat-val">${price.open||'—'}</div></div>
-          <div class="pstat"><div class="pstat-label">最高</div><div class="pstat-val c-green">${price.high||'—'}</div></div>
-          <div class="pstat"><div class="pstat-label">最低</div><div class="pstat-val c-red">${price.low||'—'}</div></div>
-          <div class="pstat"><div class="pstat-label">昨收</div><div class="pstat-val">${price.close||'—'}</div></div>
-        </div>
-      </div>
-    </div>`;
-  } else {
-    priceHtml=`<div class="notice" style="margin-top:12px">⚠️ 即時股價查詢失敗（盤後或代號錯誤），僅顯示AI分析資料</div>`;
-  }
+  // 財務
+  document.getElementById('g-finance').innerHTML=
+    L('📊','Goodinfo — 歷年EPS走勢','從上市第一年到最新，含平均值折線圖','https://goodinfo.tw/tw/StockFinDetail.asp?STOCK_ID='+code,'r','真實財報')+
+    L('💰','Goodinfo — 歷年股利 & 殖利率','配息紀錄、除息日、殖利率完整資料','https://goodinfo.tw/tw/StockDividendPolicy.asp?STOCK_ID='+code,'r','真實財報')+
+    L('📈','Goodinfo — ROE & 獲利能力','股東權益報酬率、毛利率、淨利率','https://goodinfo.tw/tw/StockFinDetail.asp?STOCK_ID='+code+'&RPT_CAT=Y_M_EPS','r','真實財報')+
+    L('🏦','公開資訊觀測站 — 官方財報','台灣證交所官方財務報表，最權威來源','https://mops.twse.com.tw/mops/web/t163sb04?TYPEK=sii&co_id='+code,'r','官方資料');
 
-  // EPS歷史圖表
-  const validEps = epsHist||[];
-  const epsAvg = validEps.length?(validEps.reduce((s,r)=>s+r.eps,0)/validEps.length).toFixed(2):0;
-  const epsSource = validEps.length>0?'公開資訊觀測站真實資料':'AI估算';
-  const epsTag = validEps.length>0?'source-tag':'ai-tag';
+  document.getElementById('g-target').innerHTML=
+    L('🎯','CMoney — 法人目標價','分析師預估目標價、買賣建議','https://www.cmoney.tw/finance/f00053.aspx?s='+code,'r','法人資料')+
+    L('📅','CMoney — 未來EPS預估','法人對未來4季EPS的正式預估值','https://www.cmoney.tw/finance/f00053.aspx?s='+code,'r','法人資料')+
+    L('💹','股狗網 — 財務評分','獲利、成長、安全、股利綜合評分','https://www.stockdog.com.tw/stock/'+code+'/financial','r','真實數據')+
+    L('🔢','MoneyDJ — 本益比分析','本益比、股價淨值比歷史走勢','https://www.moneydj.com/KLINE/KLINE.djhtm?a='+code,'r','真實數據');
 
-  // 未來EPS預估
-  const forecast = ai?.eps_q_forecast||[];
+  // 籌碼
+  document.getElementById('g-chips').innerHTML=
+    L('🏦','集保結算所 — 每周大戶持股','每周更新！各區間持股人數，大戶比例變化','https://www.tdcc.com.tw/portal/zh/smWeb/qryStock','r','每周更新')+
+    L('👥','股狗網 — 三大法人動向','外資、投信、自營商每日買賣超','https://www.stockdog.com.tw/stock/'+code+'/chips','r','真實籌碼')+
+    L('📊','CMoney — 法人買賣超','近期法人累計買賣超張數與金額','https://www.cmoney.tw/forum/stock/'+code,'r','真實籌碼')+
+    L('🔍','Goodinfo — 主力進出','主力買賣超、散戶動向分析','https://goodinfo.tw/tw/StockBuySaleChart.asp?STOCK_ID='+code,'r','真實籌碼');
 
-  // 渲染
-  const ra = document.getElementById('ra');
-  ra.innerHTML=`
-  <div class="stock-header">
-    <div class="stock-top">
-      <div>
-        <div class="stock-name">${price?.name||('股票 '+code)}</div>
-        <div class="stock-code">📌 ${code} ｜ 🏭 ${ai?.industry||'—'} ｜ 查詢時間：${now.toLocaleString('zh-TW')}</div>
-      </div>
-      <div class="industry-badge">${ai?.industry||'—'}</div>
-    </div>
-    ${priceHtml}
-  </div>
+  document.getElementById('g-margin').innerHTML=
+    L('💳','台灣證交所 — 融資融券','融資餘額、融券餘額、資券比','https://www.twse.com.tw/zh/trading/exchange/BWIBBU_d.html','r','官方資料')+
+    L('📉','Goodinfo — 融資融券趨勢','歷史融資融券餘額走勢圖','https://goodinfo.tw/tw/StockMarginChart.asp?STOCK_ID='+code,'r','真實數據')+
+    L('🏢','MoneyDJ — 董監持股','董事、監察人持股比例','https://www.moneydj.com/KLINE/KLINE.djhtm?a='+code,'b','真實數據')+
+    L('📋','公開資訊觀測站 — 持股異動','大股東持股申報資料','https://mops.twse.com.tw/mops/web/t11sb10?TYPEK=sii&co_id='+code,'r','官方資料');
 
-  <div class="cards-grid">
-    <div class="icard">
-      <div class="icard-label">🎯 法人目標價 <span class="ai-tag">AI參考</span></div>
-      <div class="icard-val c-gold" style="font-size:16px">${ai?.target_price||'—'}</div>
-      <div class="icard-sub">${ai?.price_comment||''}</div>
-    </div>
-    <div class="icard">
-      <div class="icard-label">💵 股利政策 <span class="ai-tag">AI參考</span></div>
-      <div class="icard-val c-green" style="font-size:14px;line-height:1.4">${ai?.dividend_comment||'—'}</div>
-    </div>
-    <div class="icard">
-      <div class="icard-label">📊 近年EPS均值 <span class="${epsTag}">${epsSource}</span></div>
-      <div class="icard-val c-blue">${epsAvg} 元</div>
-      <div class="icard-sub">共 ${validEps.length} 年資料</div>
-    </div>
-  </div>
+  // 技術面
+  document.getElementById('g-tech').innerHTML=
+    L('📈','Yahoo股市 — K線圖','即時K線、均線、成交量圖表','https://tw.stock.yahoo.com/quote/'+code+'/chart','r','即時報價')+
+    L('🔢','Goodinfo — 技術指標','KD、MACD、RSI、布林通道歷史','https://goodinfo.tw/tw/StockTechnicalAnalysis.asp?STOCK_ID='+code,'r','真實數據')+
+    L('📊','MoneyDJ — 技術分析','專業型態分析、支撐壓力','https://www.moneydj.com/KLINE/KLINE.djhtm?a='+code,'b','真實數據')+
+    L('💹','股狗網 — 技術評分','技術面綜合評分、買賣訊號','https://www.stockdog.com.tw/stock/'+code+'/technical','r','真實數據');
 
-  <div class="scard">
-    <div class="scard-title">🏭 公司在做什麼？<span class="ai-tag">AI分析</span></div>
-    <div style="background:#1c2230;border-left:3px solid #2563eb;border-radius:0 8px 8px 0;padding:13px 16px;font-size:14px;line-height:1.7">${ai?.analogy||'—'}</div>
-  </div>
+  // 新聞
+  document.getElementById('g-news').innerHTML=
+    L('📰','Yahoo財經 — 最新新聞','即時相關新聞、媒體報導','https://tw.stock.yahoo.com/quote/'+code+'/news','b','即時新聞')+
+    L('🌐','Anue鉅亨 — 產業新聞','產業動態、法人報告摘要','https://news.cnyes.com/news/cat/twstock?keyword='+code,'b','即時新聞')+
+    L('📡','股狗網 — 個股新聞','個股專屬新聞彙整','https://www.stockdog.com.tw/stock/'+code+'/news','b','即時新聞')+
+    L('💬','PTT Stock板 — 討論','散戶討論、市場情緒參考','https://www.ptt.cc/bbs/Stock/search?q='+code,'g','僅供參考');
 
-  <div class="scard">
-    <div class="scard-title">
-      📊 歷年EPS走勢（上市至今）
-      <span class="${epsTag}" style="margin-left:4px">${epsSource}</span>
-    </div>
-    ${validEps.length>0?`
-    <div class="chart-wrap"><canvas id="epsChart"></canvas></div>
-    <div class="notice">📡 資料來源：公開資訊觀測站，共 ${validEps.length} 年實際財報資料（均值 ${epsAvg} 元）</div>
-    `:`<div class="notice">⚠️ 歷年EPS資料查詢失敗，請直接至 goodinfo.tw 查詢</div>`}
-  </div>
-
-  <div class="scard">
-    <div class="scard-title">📅 近期季度EPS（${cy}年）<span class="ai-tag">AI參考估算</span></div>
-    <table class="eps-tbl">
-      <tr><th>季度</th><th>EPS（元）</th><th>備註</th></tr>
-      ${forecast.map(r=>{
-        const cls=r.eps>=0?'ep':'en';
-        return `<tr><td>${r.q}</td><td class="${cls}">${r.eps>0?'+':''}${r.eps}</td><td style="color:#8b949e;font-size:12px">${r.note||''}</td></tr>`;
-      }).join('')}
-    </table>
-    <div class="notice">⚠️ 季度EPS為AI參考估算，請以公司正式財報公布為準</div>
-  </div>
-
-  <div class="scard">
-    <div class="scard-title">⚠️ 主要風險<span class="ai-tag">AI分析</span></div>
-    <div class="risk-list">
-      ${(ai?.risks||[]).map((r,i)=>{
-        const colors=['#ef4444','#f59e0b','#8b949e'];
-        return `<div class="risk-row"><div class="rdot" style="background:${colors[i]||'#8b949e'}"></div><div>${r}</div></div>`;
-      }).join('')}
-    </div>
-  </div>
-
-  ${ai?.revenue_trend?`
-  <div class="scard">
-    <div class="scard-title">🔍 完整版補充<span class="ai-tag">AI分析</span></div>
-    <table class="eps-tbl">
-      ${ai.revenue_trend?`<tr><td style="color:#8b949e;width:100px">營收趨勢</td><td>${ai.revenue_trend}</td></tr>`:''}
-      ${ai.competitors?`<tr><td style="color:#8b949e">主要競爭對手</td><td>${ai.competitors.join('、')}</td></tr>`:''}
-      ${ai.technical?`<tr><td style="color:#8b949e">技術面</td><td>${ai.technical}</td></tr>`:''}
-    </table>
-  </div>`:''}
-  `;
-
-  ra.style.display='block';
-
-  // 畫EPS圖表
-  if(epsChart){ epsChart.destroy(); epsChart=null; }
-  if(validEps.length>0){
-    const ctx=document.getElementById('epsChart');
-    if(ctx){
-      const avg=parseFloat(epsAvg);
-      epsChart=new Chart(ctx.getContext('2d'),{
-        data:{
-          labels:validEps.map(r=>r.year+''),
-          datasets:[
-            {type:'bar',label:'年度EPS（元）',
-             data:validEps.map(r=>r.eps),
-             backgroundColor:validEps.map(r=>r.eps>=avg?'rgba(37,99,235,0.75)':'rgba(239,68,68,0.65)'),
-             borderRadius:4,order:2},
-            {type:'line',label:'歷年均值（'+avg+'元）',
-             data:validEps.map(()=>avg),
-             borderColor:'#f59e0b',borderWidth:2,borderDash:[5,4],
-             pointRadius:0,fill:false,order:1}
-          ]
-        },
-        options:{
-          responsive:true,maintainAspectRatio:false,
-          plugins:{
-            legend:{labels:{color:'#8b949e',font:{family:'Noto Sans TC',size:11}}},
-            tooltip:{callbacks:{label:c=>` ${c.dataset.label}：${c.parsed.y} 元`}}
-          },
-          scales:{
-            x:{ticks:{color:'#8b949e',maxRotation:45},grid:{color:'#1c2230'}},
-            y:{ticks:{color:'#8b949e',callback:v=>v+'元'},grid:{color:'#1c2230'},
-               title:{display:true,text:'EPS（元）',color:'#8b949e'}}
-          }
-        }
-      });
-    }
-  }
+  document.getElementById('g-official').innerHTML=
+    L('📋','公開資訊觀測站 — 重大訊息','公司官方公告、重大訊息申報','https://mops.twse.com.tw/mops/web/t05st01?TYPEK=&co_id='+code,'r','官方公告')+
+    L('📄','公開資訊觀測站 — 財務報告','季報、年報官方下載','https://mops.twse.com.tw/mops/web/t163sb04?TYPEK=sii&co_id='+code,'r','官方資料')+
+    L('🏢','公司投資人關係','公司官網IR頁面（如有）','https://www.google.com/search?q='+code+'+投資人關係+IR','g','Google搜尋')+
+    L('📊','台灣證交所 — 歷史股價','官方歷史成交資料下載','https://www.twse.com.tw/zh/trading/historical/stock-day.html','r','官方資料');
 }
 </script>
 </body>
